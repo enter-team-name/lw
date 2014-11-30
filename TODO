@@ -2,7 +2,7 @@ General:
  ✔ Create this TODO @done (30.11.14 18:25)
  ✔ Create team account @done (30.11.14 18:26)
  ✔ Create repo @done (30.11.14 18:26)
- ☐ Choose language
-   ☐ Haxe
-   ☐ Something else?
+ ✔ Choose language @done (30.11.14 20:17)
+   ✔ Haxe
+   ✘ Something else? @cancelled (30.11.14 20:16)
  ☐ Make this TODO more informative
