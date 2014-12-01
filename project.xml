@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <project>
 	
-	<meta title="Lw" package="com.sample.project" version="1.0.0" company="Company Name" />
+	<meta title="Lw" package="com.teamname.lw" version="1.0.0" company="Team Name" />
 	<app main="Main" path="Export" file="Lw" />
 	
 	<source path="Source" />
