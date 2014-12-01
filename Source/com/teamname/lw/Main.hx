@@ -1,4 +1,4 @@
-package;
+package com.teamname.lw;
 
 import openfl.display.Sprite;
 
