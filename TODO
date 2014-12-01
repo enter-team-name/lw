@@ -9,7 +9,7 @@ General:
    ✘ Something else? @cancelled (30.11.14 20:16)
  ✔ Create html page for viewing swf @done (30.11.14 23:17)
  ✔ .gitignore for build dir @done (30.11.14 23:17)
- ✔ Fix class name @done (01.12.14 20:10)
+ ✔ Fix class name @done (01.12.14 20:13)
  ☐ Make this TODO more informative @started (01.12.14 11:42)
  ☐ Make README.md more informative @started (01.12.14 12:20)
  ☐ Port main objects and algorithms @started (01.12.14 11:50)
@@ -18,5 +18,7 @@ General:
    ☐ grad.c - updates distances on each iteration
    ☐ fighter.c - moves pixels, heals or attacks other ones
    ☐ area.c - part of map init and some structures
+ ☐ Select field storing method @started (01.12.14 20:34)
  ☐ Add graphics
  ☐ Testing
+ ☐ Unit tests
