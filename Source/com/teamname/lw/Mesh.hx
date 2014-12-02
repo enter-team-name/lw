@@ -77,10 +77,8 @@ class Mesh<T> {
 			for (i in x0...x0 + w)
 				res.addZone(new MeshZone(i, j, 0, defaultValue));
 
-		for (i in 0...w) {
-			for (j in 0...h) {
-				var x = x0 + i;
-				var y = y0 + j;
+		for (x in x0...x0 + w) {
+			for (y in y0...y0 + h) {
 				var z = res.getZoneAt(x, y);
 
 				z.links[Dir.DIR_NNE] = res.getZoneAt(x    , y - 1);
