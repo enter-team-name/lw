@@ -2,11 +2,12 @@
 <project>
 	
 	<meta title="LW" package="com.teamname.lw" version="0.0.1" company="Team Name" />
-	<app main="Main" path="Export" file="LW" />
+	<app main="com.teamname.lw.Main" path="Export" file="LW" />
 	
 	<source path="Source" />
 	
 	<haxelib name="openfl" />
+	<haxelib name="polygonal-ds" />
 	
 	<assets path="Assets" rename="assets" exclude="openfl.svg" />
 	<icon path="Assets/openfl.svg" />
