@@ -1,1 +1,3 @@
 Export/**
+*.sublime-workspace
+*.sublime-project

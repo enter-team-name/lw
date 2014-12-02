@@ -3,15 +3,12 @@ package com.teamname.lw;
 
 import haxe.ds.Vector;
 
-import de.polygonal.ds.DLL; // Doubly Linked List
-
 import openfl.display.BitmapData;
 import openfl.geom.Rectangle;
 
 class Mesh<T> {
 	var width(default, null) : Int;
 	var height(default, null) : Int;
-	var zoneList(default, null) = new DLL<MeshZone<T>>();
 	var zoneTable(default, null) : Array<Array<MeshZone<T>>>;
 
 	public function new(w : Int, h : Int) {
@@ -24,26 +21,15 @@ class Mesh<T> {
 		if (z.x + z.size > width || z.y + z.size > height)
 			throw "Zone out of bounds";
 
-		for (i in z.x...z.x + z.size)
-			for (j in z.y...z.y + z.size)
-				if (zoneTable[i][j] != null)
-					throw "Mesh zones can't intersect!";
-
-		for (i in z.x...z.x + z.size)
-			for (j in z.y...z.y + z.size)
-				zoneTable[i][j] = z;
-
-		zoneList.append(z);
+		zoneTable[z.x][z.y] = z;
 	}
 
 	public function removeZone(z : MeshZone<T>) : Bool {
-		var res = zoneList.remove(z);
-		if (res) {
-			for (i in z.x...z.x + z.size)
-				for (j in z.y...z.y + z.size)
-					zoneTable[i][j] = null;
+		if (zoneTable[z.x][z.y] == z) {
+			zoneTable[z.x][z.y] = null;
+			return true;
 		}
-		return res;
+		return false;
 	}
 
 	public inline function getZoneAt(x : Int, y : Int) {
@@ -53,30 +39,15 @@ class Mesh<T> {
 			return zoneTable[x][y];
 	}
 
-	public function sortZones() {
-		zoneList.sort(function (a, b) {
-			if (a.y != b.y) return a.y - b.y;
-			else return a.x - b.x;
-		});
-	}
-
-	public inline function zoneCount() : Int {
-		return zoneList.size();
-	}
-
-	public inline function iterator() {
-		return zoneList.iterator();
-	}
-
-	// public inline function reverseIterator() {
-	// 	// TODO
-	// }
-
 	public function toImage() : BitmapData {
 		var res = new BitmapData(width, height, true /*transparent*/);
-		for (z in zoneList) {
-			var color = 0xFF000000 | Std.random(0xFFFFFF);
-			res.fillRect(new Rectangle(z.x, z.y, z.size, z.size), color);
+		for (i in 0...width) {
+			for (j in 0...height) {
+				var z = getZoneAt(i, j);
+				if (z == null) continue;
+				var color = 0xFF000000 | Std.random(0xFFFFFF);
+				res.fillRect(new Rectangle(z.x, z.y, z.size, z.size), color);
+			}
 		}
 		return res;
 	}
@@ -100,17 +71,17 @@ class Mesh<T> {
 
 		// Zones should be properly connected to one another
 		// (this is supposed to look like a table)
-		if (                               nw.links[Dir.DIR_ESE] == ne && nw.links[Dir.DIR_SSE] == sw && nw.links[Dir.DIR_SE]  == se &&
-			ne.links[Dir.DIR_WSW] == nw &&                                ne.links[Dir.DIR_SW]  == sw && ne.links[Dir.DIR_SSW] == se &&
-			sw.links[Dir.DIR_NNE] == nw && sw.links[Dir.DIR_NE]  == ne &&                                sw.links[Dir.DIR_ENE] == se &&
-			se.links[Dir.DIR_NW]  == nw && se.links[Dir.DIR_NNW] == ne && se.links[Dir.DIR_WNW] == sw                               )
+		if (                               nw.links[Dir.DIR_ESE] != ne || nw.links[Dir.DIR_SSE] != sw || nw.links[Dir.DIR_SE]  != se ||
+			ne.links[Dir.DIR_WSW] != nw ||                                ne.links[Dir.DIR_SW]  != sw || ne.links[Dir.DIR_SSW] != se ||
+			sw.links[Dir.DIR_NNE] != nw || sw.links[Dir.DIR_NE]  != ne ||                                sw.links[Dir.DIR_ENE] != se ||
+			se.links[Dir.DIR_NW]  != nw || se.links[Dir.DIR_NNW] != ne || se.links[Dir.DIR_WNW] != sw                               )
 			return false;
 
 		// Not sure how this can be wrong, but let's check it just in case
 		var size = 1 << sizeLog;
 		if (nw.x != x        || nw.y != y        ||
-			ne.x != x        || ne.y != y + size ||
-			sw.x != x + size || sw.y != y        ||
+			ne.x != x + size || ne.y != y        ||
+			sw.x != x        || sw.y != y + size ||
 			se.x != x + size || se.y != y + size)
 			return false;
 
@@ -119,28 +90,32 @@ class Mesh<T> {
 
 	private function mergeOnce(sizeLog : Int) : Bool {
 		var size = 1 << sizeLog;
-		var mergedAnything = false;
+		var mergedSomething = false;
 		for (i in 0...Std.int(width / size / 2)) {
 			var x = i * 2 * size;
+			trace(sizeLog, x);
 			for (j in 0...Std.int(height / size / 2)) {
 				var y = j * 2 * size;
-				trace(sizeLog, x, y);
+				//trace(sizeLog, x, y);
 
 				var nw = getZoneAt(x       , y       );
-				var ne = getZoneAt(x       , y + size);
-				var sw = getZoneAt(x + size, y       );
+				var ne = getZoneAt(x + size, y       );
+				var sw = getZoneAt(x       , y + size);
 				var se = getZoneAt(x + size, y + size);
 
 				if (shouldMerge(x, y, sizeLog, nw, ne, sw, se)) {
 					var newZone = new MeshZone(x, y, sizeLog + 1, nw.value);
 
 					for (i in 0...12)
-						newZone.links[i] = [ne, se, sw, nw][Std.int(i / 3)];
+						newZone.links[i] = [ne, se, sw, nw][Std.int(i / 3)].links[i];
 
-					for (i in 0...12)
-						for (j in 0...12)
-							if ([nw, ne, sw, se].indexOf(newZone.links[i].links[j]) != -1)
+					for (i in 0...12) {
+						for (j in 0...12) {
+							var z = newZone.links[i].links[j];
+							if (z == nw || z == ne || z == sw || z == se)
 								newZone.links[i].links[j] = newZone;
+						}
+					}
 
 					removeZone(nw);
 					removeZone(ne);
@@ -148,11 +123,11 @@ class Mesh<T> {
 					removeZone(se);
 					addZone(newZone);
 
-					mergedAnything = true;
+					mergedSomething = true;
 				}
 			}
 		}
-		return mergedAnything;
+		return mergedSomething;
 	}
 
 	public function merge(maxSizeLog : Int = 100) {
