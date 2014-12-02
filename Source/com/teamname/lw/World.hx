@@ -5,6 +5,8 @@ class World {
 	public var mesh : Mesh<Int>;
 
 	public function new() {
-		mesh = Mesh.createRectangularMesh(128, 128);
+		mesh = new Mesh<Int>(128, 128);
+		mesh.addRectangularMesh(0, 0, 128, 128);
+		mesh.merge(4);
 	}
 }

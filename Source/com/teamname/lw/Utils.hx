@@ -18,4 +18,18 @@ class Utils {
 		}
 		return res;
 	}
+
+	public static function any(it : Iterable<Bool>) : Bool {
+		for (x in it) {
+			if (x) return true;
+		}
+		return false;
+	}
+
+	public static function all(it : Iterable<Bool>) : Bool {
+		for (x in it) {
+			if (!x) return false;
+		}
+		return true;
+	}
 }
