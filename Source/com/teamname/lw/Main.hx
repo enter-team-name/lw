@@ -11,7 +11,7 @@ class Main extends Sprite {
 		var w = new World();
 
 		var b = new Bitmap(w.mesh.toImage());
-		//b.scaleX = b.scaleY = 2;
+		b.scaleX = b.scaleY = 2;
 		addChild(b);
 	}
 }
