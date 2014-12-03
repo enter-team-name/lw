@@ -1,12 +1,19 @@
 
 package com.teamname.lw;
 
+import openfl.display.BitmapData;
+import openfl.Assets;
+
 class World {
 	public var mesh : Mesh<Void>;
 
 	public function new() {
-		mesh = new Mesh<Void>(1000, 1000);//TODO: fix sizes
-		mesh.addMeshFromMap("puckman");
+		var map_name = "big";
+		var bitmapData = Assets.getBitmapData("maps/" + map_name + ".png");
+		var w = Std.int(bitmapData.rect.width);
+		var h = Std.int(bitmapData.rect.height);
+		mesh = new Mesh<Void>(w, h);
+		mesh.addMeshFromMap(map_name);
 		mesh.merge(6);
 	}
 }
