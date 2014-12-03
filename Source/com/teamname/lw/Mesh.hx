@@ -94,7 +94,7 @@ class Mesh<T> {
 		var size = 1 << sizeLog;
 		var mergedSomething = false;
 		for (x in new Range(0, width, 2 * size)) {
-			trace(sizeLog, x);
+			// trace(sizeLog, x);
 			for (y in new Range(0, height, 2 * size)) {
 				//trace(sizeLog, x, y);
 
@@ -108,11 +108,18 @@ class Mesh<T> {
 
 					for (i in 0...12)
 						newZone.links[i] = [ne, se, sw, nw][Std.int(i / 3)].links[i];
+					// for (i in 0...3) {
+					// 	newZone.links[i + 3*0] = ne.links[i + 3*0];
+					// 	newZone.links[i + 3*1] = se.links[i + 3*1];
+					// 	newZone.links[i + 3*2] = sw.links[i + 3*2];
+					// 	newZone.links[i + 3*3] = nw.links[i + 3*3];
+					// }
 
 					for (i in 0...12) {
 						for (j in 0...12) {
 							var z = newZone.links[i].links[j];
-							if (z == nw || z == ne || z == sw || z == se)
+							// if (z == nw || z == ne || z == sw || z == se)
+							if(Lambda.has([ne, se, sw, nw], z)) //TODO: declare [ne, se, sw, nw] as new var
 								newZone.links[i].links[j] = newZone;
 						}
 					}
