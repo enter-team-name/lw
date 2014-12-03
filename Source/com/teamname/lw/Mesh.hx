@@ -55,12 +55,14 @@ class Mesh<T> {
 	}
 
 	private function shouldMerge(x, y, sizeLog, nw : MeshZone<T>, ne : MeshZone<T>, sw : MeshZone<T>, se : MeshZone<T>) : Bool {
-		for (z in [nw, ne, sw, se])
+		var magicArray = [nw, ne, sw, se];
+
+		for (z in magicArray)
 			if (z == null || z.sizeLog != sizeLog)
 				return false;
 
 		// Each zone should have at most one neighbor in each cardinal direction
-		for (z in [nw, ne, sw, se]) {
+		for (z in magicArray) {
 			var zl = z.links;
 			for (dir in 1...5)
 				if (zl[(3 * dir) % 12] != zl[(3 * dir - 1) % 12])
@@ -158,19 +160,20 @@ class Mesh<T> {
 				addZone(new MeshZone(i, j, 0, defaultValue));
 		}
 
+		var dxs = Dir.xOffsets.map(function (d) return Std.int(d / 2));
+		var dys = Dir.yOffsets.map(function (d) return Std.int(d / 2));
+
 		for (i in 0...w) {
 			//trace(i);
 			for (j in 0...h) {
-				var z = getZoneAt(x + i, y + j);
+				var z = getZoneAt(x + i, y + j).links;
 
 				for (k in 0...12) {
-					var d : Dir = k;
-					var dx = Std.int(d.xOffset() / 2);
-					var dy = Std.int(d.yOffset() / 2);
-					if (i == 0 && j == 0) trace(k, d, dx, dy);
+					var dx = dxs[k];
+					var dy = dys[k];
 
 					if (0 <= i + dx && i + dx < w && 0 <= j + dy && j + dy < h)
-						z.links[k] = getZoneAt(x + i + dx, y + j + dy);
+						z[k] = getZoneAt(x + i + dx, y + j + dy);
 				}
 			}
 		}
