@@ -64,9 +64,9 @@ class Mesh<T> {
 		// Each zone should have at most one neighbor in each cardinal direction
 		for (z in magicArray) {
 			var zl = z.links;
-			for (dir in 1...5)
-				if (zl[(3 * dir) % 12] != zl[(3 * dir - 1) % 12])
-					return false;
+			if (zl[Dir.DIR_NNW] != zl[Dir.DIR_NNE] || zl[Dir.DIR_ENE] != zl[Dir.DIR_ESE] ||
+				zl[Dir.DIR_SSE] != zl[Dir.DIR_SSW] || zl[Dir.DIR_WSW] != zl[Dir.DIR_WNW])
+				return false;
 		}
 
 		var nwl = nw.links;
@@ -166,14 +166,14 @@ class Mesh<T> {
 		for (i in 0...w) {
 			//trace(i);
 			for (j in 0...h) {
-				var z = getZoneAt(x + i, y + j).links;
+				var zl = getZoneAt(x + i, y + j).links;
 
 				for (k in 0...12) {
 					var dx = dxs[k];
 					var dy = dys[k];
 
 					if (0 <= i + dx && i + dx < w && 0 <= j + dy && j + dy < h)
-						z[k] = getZoneAt(x + i + dx, y + j + dy);
+						zl[k] = getZoneAt(x + i + dx, y + j + dy);
 				}
 			}
 		}
