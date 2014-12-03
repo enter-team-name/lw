@@ -7,6 +7,7 @@ class Main extends Sprite {
 	public function new() {
 		super();
 		trace("Hello World!");
+
 		var w = new World();
 
 		var b = new Bitmap(w.mesh.toImage());

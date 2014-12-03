@@ -101,7 +101,7 @@ class Mesh<T> {
 		var size = 1 << sizeLog;
 		var mergedSomething = false;
 		for (x in new Range(0, width, 2 * size)) {
-			// trace(sizeLog, x);
+			trace(sizeLog, x);
 			for (y in new Range(0, height, 2 * size)) {
 				//trace(sizeLog, x, y);
 
@@ -117,32 +117,27 @@ class Mesh<T> {
 					var nel = ne.links;
 					var swl = sw.links;
 					var sel = se.links;
-					var tmp = [for (i in 0...12) null];
+					var nzl = newZone.links;
 
-					for (i in 0...3 ) tmp[i] = nel[i];
-					for (i in 3...6 ) tmp[i] = sel[i];
-					for (i in 6...9 ) tmp[i] = swl[i];
-					for (i in 9...12) tmp[i] = nwl[i];
-
-					newZone.links = tmp;
+					for (i in 0...3 ) nzl[i] = nel[i];
+					for (i in 3...6 ) nzl[i] = sel[i];
+					for (i in 6...9 ) nzl[i] = swl[i];
+					for (i in 9...12) nzl[i] = nwl[i];
 
 					for (i in 0...12) {
-						var u = tmp[i].links;
+						var u = nzl[i].links;
 						for (j in 0...12) {
 							var z = u[j];
 							if (z == nw || z == ne || z == sw || z == se)
-								tmp[i].links[j] = newZone;
+								u[j] = newZone;
 						}
 					}
-
-					newZone.links = tmp;
 
 					removeZone(nw);
 					removeZone(ne);
 					removeZone(sw);
 					removeZone(se);
 					addZone(newZone);
-
 					mergedSomething = true;
 				}
 			}
@@ -157,41 +152,33 @@ class Mesh<T> {
 	}
 
 	public function addRectangularMesh(x : Int, y : Int, w : Int, h : Int, ?defaultValue : T) {
-		for (i in x...x + w)
+		for (i in x...x + w) {
+			//trace(i);
 			for (j in y...y + h)
 				addZone(new MeshZone(i, j, 0, defaultValue));
+		}
 
 		for (i in 0...w) {
+			//trace(i);
 			for (j in 0...h) {
 				var z = getZoneAt(x + i, y + j);
 
-				var f = function(dx, dy) {
-					if (0 <= i + dx && i + dx < w &&
-						0 <= j + dy && j + dy < h)
-						return getZoneAt(x + i + dx, y + j + dy);
-					else
-						return null;
-				}
+				for (k in 0...12) {
+					var d : Dir = k;
+					var dx = Std.int(d.xOffset() / 2);
+					var dy = Std.int(d.yOffset() / 2);
+					if (i == 0 && j == 0) trace(k, d, dx, dy);
 
-				z.links[Dir.DIR_NNE] = f( 0, -1);
-				z.links[Dir.DIR_NE]  = f( 1, -1);
-				z.links[Dir.DIR_ENE] = f( 1,  0);
-				z.links[Dir.DIR_ESE] = f( 1,  0);
-				z.links[Dir.DIR_SE]  = f( 1,  1);
-				z.links[Dir.DIR_SSE] = f( 0,  1);
-				z.links[Dir.DIR_SSW] = f( 0,  1);
-				z.links[Dir.DIR_SW]  = f(-1,  1);
-				z.links[Dir.DIR_WSW] = f(-1,  0);
-				z.links[Dir.DIR_WNW] = f(-1,  0);
-				z.links[Dir.DIR_NW]  = f(-1, -1);
-				z.links[Dir.DIR_NNW] = f( 0, -1);
+					if (0 <= i + dx && i + dx < w && 0 <= j + dy && j + dy < h)
+						z.links[k] = getZoneAt(x + i + dx, y + j + dy);
+				}
 			}
 		}
 	}
 }
 
 class MeshZone<T> {
-	public var links(default, default) = new Array<MeshZone<T>>();
+	public var links(default, never) = new Vector<MeshZone<T>>(12);
 	public var value(default, default) : T;
 	public var x(default, null) : Int;
 	public var y(default, null) : Int;

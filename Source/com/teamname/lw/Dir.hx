@@ -15,4 +15,15 @@ abstract Dir(Int) from Int to Int {
 	var DIR_WNW = 9;
 	var DIR_NW = 10;
 	var DIR_NNW = 11;
+
+	public static var xOffsets = [ 1,  2,  2,  2,  2,  1, -1, -2, -2, -2, -2, -1];
+	public static var yOffsets = [-2, -2, -1,  1,  2,  2,  2,  2,  1, -1, -2, -2];
+
+	public inline function xOffset() {
+		return xOffsets[this];
+	}
+
+	public inline function yOffset() {
+		return yOffsets[this];
+	}
 }
