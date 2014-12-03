@@ -60,23 +60,30 @@ class Mesh<T> {
 				return false;
 
 		// Each zone should have at most one neighbor in each cardinal direction
-		for (z in [nw, ne, sw, se])
+		for (z in [nw, ne, sw, se]) {
+			var zl = z.links;
 			for (dir in 1...5)
-				if (z.links[(3 * dir) % 12] != z.links[(3 * dir - 1) % 12])
+				if (zl[(3 * dir) % 12] != zl[(3 * dir - 1) % 12])
 					return false;
+		}
+
+		var nwl = nw.links;
+		var nel = ne.links;
+		var swl = sw.links;
+		var sel = se.links;
 
 		// There should be zones diagonally adjecent to the new zone
 		// Not sure why this is neccessary, but the original code checks it
-		if (nw.links[Dir.DIR_NW] == null || ne.links[Dir.DIR_NE] == null &&
-			sw.links[Dir.DIR_SW] == null || se.links[Dir.DIR_SE] == null)
+		if (nwl[Dir.DIR_NW] == null || nel[Dir.DIR_NE] == null &&
+			swl[Dir.DIR_SW] == null || sel[Dir.DIR_SE] == null)
 			return false;
 
 		// Zones should be properly connected to one another
 		// (this is supposed to look like a table)
-		if (                               nw.links[Dir.DIR_ESE] != ne || nw.links[Dir.DIR_SSE] != sw || nw.links[Dir.DIR_SE]  != se ||
-			ne.links[Dir.DIR_WSW] != nw ||                                ne.links[Dir.DIR_SW]  != sw || ne.links[Dir.DIR_SSW] != se ||
-			sw.links[Dir.DIR_NNE] != nw || sw.links[Dir.DIR_NE]  != ne ||                                sw.links[Dir.DIR_ENE] != se ||
-			se.links[Dir.DIR_NW]  != nw || se.links[Dir.DIR_NNW] != ne || se.links[Dir.DIR_WNW] != sw                               )
+		if (                          nwl[Dir.DIR_ESE] != ne || nwl[Dir.DIR_SSE] != sw || nwl[Dir.DIR_SE]  != se ||
+			nel[Dir.DIR_WSW] != nw ||                           nel[Dir.DIR_SW]  != sw || nel[Dir.DIR_SSW] != se ||
+			swl[Dir.DIR_NNE] != nw || swl[Dir.DIR_NE]  != ne ||                           swl[Dir.DIR_ENE] != se ||
+			sel[Dir.DIR_NW]  != nw || sel[Dir.DIR_NNW] != ne || sel[Dir.DIR_WNW] != sw                          )
 			return false;
 
 		// Not sure how this can be wrong, but let's check it just in case
@@ -106,23 +113,29 @@ class Mesh<T> {
 				if (shouldMerge(x, y, sizeLog, nw, ne, sw, se)) {
 					var newZone = new MeshZone(x, y, sizeLog + 1, nw.value);
 
-					for (i in 0...12)
-						newZone.links[i] = [ne, se, sw, nw][Std.int(i / 3)].links[i];
-					// for (i in 0...3) {
-					// 	newZone.links[i + 3*0] = ne.links[i + 3*0];
-					// 	newZone.links[i + 3*1] = se.links[i + 3*1];
-					// 	newZone.links[i + 3*2] = sw.links[i + 3*2];
-					// 	newZone.links[i + 3*3] = nw.links[i + 3*3];
-					// }
+					var nwl = nw.links;
+					var nel = ne.links;
+					var swl = sw.links;
+					var sel = se.links;
+					var tmp = [for (i in 0...12) null];
+
+					for (i in 0...3 ) tmp[i] = nel[i];
+					for (i in 3...6 ) tmp[i] = sel[i];
+					for (i in 6...9 ) tmp[i] = swl[i];
+					for (i in 9...12) tmp[i] = nwl[i];
+
+					newZone.links = tmp;
 
 					for (i in 0...12) {
+						var u = tmp[i].links;
 						for (j in 0...12) {
-							var z = newZone.links[i].links[j];
-							// if (z == nw || z == ne || z == sw || z == se)
-							if(Lambda.has([ne, se, sw, nw], z)) //TODO: declare [ne, se, sw, nw] as new var
-								newZone.links[i].links[j] = newZone;
+							var z = u[j];
+							if (z == nw || z == ne || z == sw || z == se)
+								tmp[i].links[j] = newZone;
 						}
 					}
+
+					newZone.links = tmp;
 
 					removeZone(nw);
 					removeZone(ne);
@@ -178,7 +191,7 @@ class Mesh<T> {
 }
 
 class MeshZone<T> {
-	public var links(default, never) = new Vector<MeshZone<T>>(12);
+	public var links(default, default) = new Array<MeshZone<T>>();
 	public var value(default, default) : T;
 	public var x(default, null) : Int;
 	public var y(default, null) : Int;
