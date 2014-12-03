@@ -5,8 +5,8 @@ class World {
 	public var mesh : Mesh<Void>;
 
 	public function new() {
-		mesh = new Mesh<Void>(512, 2048);
-		mesh.addRectangularMesh(0, 0, 512, 2048);
+		mesh = new Mesh<Void>(1000, 1000);//TODO: fix sizes
+		mesh.addMeshFromMap("puckman");
 		mesh.merge(6);
 	}
 }

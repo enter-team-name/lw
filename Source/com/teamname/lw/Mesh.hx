@@ -5,6 +5,7 @@ import haxe.ds.Vector;
 
 import openfl.display.BitmapData;
 import openfl.geom.Rectangle;
+import openfl.Assets;
 
 import com.teamname.lw.Utils;
 
@@ -127,11 +128,14 @@ class Mesh<T> {
 					for (i in 9...12) nzl[i] = nwl[i];
 
 					for (i in 0...12) {
-						var u = nzl[i].links;
-						for (j in 0...12) {
-							var z = u[j];
-							if (z == nw || z == ne || z == sw || z == se)
-								u[j] = newZone;
+						var t = nzl[i];
+						if (t != null) {
+							var u = t.links;
+							for (j in 0...12) {
+								var z = u[j];
+								if (z == nw || z == ne || z == sw || z == se)
+									u[j] = newZone;
+							}
 						}
 					}
 
@@ -150,6 +154,43 @@ class Mesh<T> {
 	public function merge(maxSizeLog : Int = 100) {
 		for (i in 0...maxSizeLog) {
 			if (!mergeOnce(i)) return;
+		}
+	}
+
+	public function addMeshFromMap(map_name : String, ?defaultValue : T) {
+		var bitmapData = Assets.getBitmapData("maps/" + map_name + ".png");
+		var w = Std.int(bitmapData.rect.width);
+		var h = Std.int(bitmapData.rect.height);
+		var arr = bitmapData.getVector(bitmapData.rect);
+		trace(w,h);
+		for (i in 0...w) {
+			for (j in 0...h) {
+				var r = arr[j * w + i] & 0xFF0000;
+				var g = arr[j * w + i] & 0xFF00;
+				var b = arr[j * w + i] & 0xFF;
+				if((r+g+b)/3 > 127)
+					addZone(new MeshZone(i, j, 0, defaultValue));
+			}
+		}
+
+		var dxs = Dir.xOffsets.map(function (d) return Std.int(d / 2));
+		var dys = Dir.yOffsets.map(function (d) return Std.int(d / 2));
+
+		for (i in 0...w) {
+			//trace(i);
+			for (j in 0...h) {
+				var t = getZoneAt(i, j);
+				if (t != null) {
+					var z = t.links;
+					for (k in 0...12) {
+						var dx = dxs[k];
+						var dy = dys[k];
+
+						if (0 <= i + dx && i + dx < w && 0 <= j + dy && j + dy < h)
+							z[k] = getZoneAt(i + dx, j + dy);
+					}
+				}
+			}
 		}
 	}
 
