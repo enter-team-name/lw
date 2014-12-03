@@ -28,7 +28,7 @@ class Range {
 	}
 
 	public function hasNext() {
-		return i < to;
+		return (step > 0) ? i < to : i > to;
 	}
 
 	public function next() {
