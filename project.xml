@@ -10,6 +10,7 @@
 	<haxelib name="polygonal-ds" />
 	
 	<assets path="Assets" rename="assets" exclude="openfl.svg" />
+	<assets path="Assets/Maps" rename="maps" />
 	<icon path="Assets/openfl.svg" />
 	
 </project>
