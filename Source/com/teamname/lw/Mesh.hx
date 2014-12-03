@@ -6,6 +6,8 @@ import haxe.ds.Vector;
 import openfl.display.BitmapData;
 import openfl.geom.Rectangle;
 
+import com.teamname.lw.Utils;
+
 class Mesh<T> {
 	var width(default, null) : Int;
 	var height(default, null) : Int;
@@ -91,11 +93,9 @@ class Mesh<T> {
 	private function mergeOnce(sizeLog : Int) : Bool {
 		var size = 1 << sizeLog;
 		var mergedSomething = false;
-		for (i in 0...Std.int(width / size / 2)) {
-			var x = i * 2 * size;
+		for (x in new Range(0, width, 2 * size)) {
 			trace(sizeLog, x);
-			for (j in 0...Std.int(height / size / 2)) {
-				var y = j * 2 * size;
+			for (y in new Range(0, height, 2 * size)) {
 				//trace(sizeLog, x, y);
 
 				var nw = getZoneAt(x       , y       );
