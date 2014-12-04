@@ -165,10 +165,10 @@ class Mesh<T> {
 		trace(w,h);
 		for (i in 0...w) {
 			for (j in 0...h) {
-				var r = arr[j * w + i] & 0xFF0000;
-				var g = arr[j * w + i] & 0xFF00;
+				var r = (arr[j * w + i] & 0xFF0000) >> 16;
+				var g = (arr[j * w + i] & 0xFF00) >> 8;
 				var b = arr[j * w + i] & 0xFF;
-				if((r+g+b)/3 > 127)
+				if((r + g + b) / 3 > 127)
 					addZone(new MeshZone(i, j, 0, defaultValue));
 			}
 		}
