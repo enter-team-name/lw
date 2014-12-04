@@ -1,4 +1,3 @@
-
 package com.teamname.lw;
 
 import openfl.display.BitmapData;

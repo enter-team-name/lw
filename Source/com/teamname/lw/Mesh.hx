@@ -1,4 +1,3 @@
-
 package com.teamname.lw;
 
 import haxe.ds.Vector;

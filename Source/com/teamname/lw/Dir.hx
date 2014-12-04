@@ -1,4 +1,3 @@
-
 package com.teamname.lw;
 
 @:enum
