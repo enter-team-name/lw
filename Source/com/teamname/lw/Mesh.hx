@@ -168,7 +168,7 @@ class Mesh<T> {
 				var r = (arr[j * w + i] & 0xFF0000) >> 16;
 				var g = (arr[j * w + i] & 0xFF00) >> 8;
 				var b = arr[j * w + i] & 0xFF;
-				if((r + g + b) / 3 > 127)
+				if(6*r + 3*g + b > 315)
 					addZone(new MeshZone(i, j, 0, defaultValue));
 			}
 		}
