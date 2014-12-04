@@ -46,7 +46,7 @@ class Mesh<T> {
 		var res = new BitmapData(width, height, true /*transparent*/);
 		for (i in 0...width) {
 			for (j in 0...height) {
-				var z = getZoneAt(i, j);
+				var z = zoneTable[i][j];
 				if (z == null) continue;
 				var color = 0xFF000000 | Std.random(0xFFFFFF);
 				res.fillRect(new Rectangle(z.x, z.y, z.size, z.size), color);
@@ -133,13 +133,12 @@ class Mesh<T> {
 
 					for (i in 0...12) {
 						var t = nzl[i];
-						if (t != null) {
-							var u = t.links;
-							for (j in 0...12) {
-								var z = u[j];
-								if (z == nw || z == ne || z == sw || z == se)
-									u[j] = newZone;
-							}
+						if (t == null) continue;
+						var u = t.links;
+						for (j in 0...12) {
+							var z = u[j];
+							if (z == nw || z == ne || z == sw || z == se)
+								u[j] = newZone;
 						}
 					}
 
@@ -184,15 +183,14 @@ class Mesh<T> {
 			//trace(i);
 			for (j in 0...h) {
 				var t = getZoneAt(i, j);
-				if (t != null) {
-					var z = t.links;
-					for (k in 0...12) {
-						var dx = dxs[k];
-						var dy = dys[k];
+				if (t == null) continue;
+				var z = t.links;
+				for (k in 0...12) {
+					var dx = dxs[k];
+					var dy = dys[k];
 
-						if (0 <= i + dx && i + dx < w && 0 <= j + dy && j + dy < h)
-							z[k] = getZoneAt(i + dx, j + dy);
-					}
+					if (0 <= i + dx && i + dx < w && 0 <= j + dy && j + dy < h)
+						z[k] = getZoneAt(i + dx, j + dy);
 				}
 			}
 		}
