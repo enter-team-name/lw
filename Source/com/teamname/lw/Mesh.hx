@@ -56,24 +56,28 @@ class Mesh<T> {
 	}
 
 	private function shouldMerge(x, y, sizeLog, nw : MeshZone<T>, ne : MeshZone<T>, sw : MeshZone<T>, se : MeshZone<T>) : Bool {
-		var magicArray = [nw, ne, sw, se];
-
-		for (z in magicArray)
-			if (z == null || z.sizeLog != sizeLog)
-				return false;
-
-		// Each zone should have at most one neighbor in each cardinal direction
-		for (z in magicArray) {
-			var zl = z.links;
-			if (zl[Dir.DIR_NNW] != zl[Dir.DIR_NNE] || zl[Dir.DIR_ENE] != zl[Dir.DIR_ESE] ||
-				zl[Dir.DIR_SSE] != zl[Dir.DIR_SSW] || zl[Dir.DIR_WSW] != zl[Dir.DIR_WNW])
-				return false;
-		}
+		if (nw == null || nw.sizeLog != sizeLog ||
+			ne == null || ne.sizeLog != sizeLog ||
+			sw == null || sw.sizeLog != sizeLog ||
+			se == null || se.sizeLog != sizeLog)
+			return false;
 
 		var nwl = nw.links;
 		var nel = ne.links;
 		var swl = sw.links;
 		var sel = se.links;
+
+		// Each zone should have at most one neighbor in each cardinal direction
+		// Sorry, but that's twice faster :(
+		if (nwl[Dir.DIR_NNW] != nwl[Dir.DIR_NNE] || nwl[Dir.DIR_ENE] != nwl[Dir.DIR_ESE] ||
+			nwl[Dir.DIR_SSE] != nwl[Dir.DIR_SSW] || nwl[Dir.DIR_WSW] != nwl[Dir.DIR_WNW] ||
+			nel[Dir.DIR_NNW] != nel[Dir.DIR_NNE] || nel[Dir.DIR_ENE] != nel[Dir.DIR_ESE] ||
+			nel[Dir.DIR_SSE] != nel[Dir.DIR_SSW] || nel[Dir.DIR_WSW] != nel[Dir.DIR_WNW] ||
+			swl[Dir.DIR_NNW] != swl[Dir.DIR_NNE] || swl[Dir.DIR_ENE] != swl[Dir.DIR_ESE] ||
+			swl[Dir.DIR_SSE] != swl[Dir.DIR_SSW] || swl[Dir.DIR_WSW] != swl[Dir.DIR_WNW] ||
+			sel[Dir.DIR_NNW] != sel[Dir.DIR_NNE] || sel[Dir.DIR_ENE] != sel[Dir.DIR_ESE] ||
+			sel[Dir.DIR_SSE] != sel[Dir.DIR_SSW] || sel[Dir.DIR_WSW] != sel[Dir.DIR_WNW])
+			return false;
 
 		// There should be zones diagonally adjecent to the new zone
 		// Not sure why this is neccessary, but the original code checks it
