@@ -62,6 +62,7 @@ class ReadOptimizedMesh<T> extends Mesh<T> {
 	}
 
 	public inline override function getZone(x : Int, y : Int) : MeshZone<T> {
+		if (x < 0 || x >= width || y < 0 || y >= height) return null;
 		return zones.get(x, y);
 	}
 }
