@@ -63,11 +63,24 @@ class GradientPathfinder implements Pathfinder {
 		if (zone == null) return Dir.DIR_SE;
 
 		if (zone == targetZone) {
-			// TODO
+			var dx = (targetX > x ? 1 : 0) - (targetX < x ? 1 : 0);
+			var dy = (targetY > y ? 1 : 0) - (targetY < y ? 1 : 0);
+			var s = Std.random(2) == 1;
+			return switch [dx, dy] {
+				case [-1, -1]: Dir.DIR_NW;
+				case [-1,  0]: s ? Dir.DIR_NNW : Dir.DIR_NNE;
+				case [-1,  1]: Dir.DIR_SW;
+				case [ 0, -1]: s ? Dir.DIR_WNW : Dir.DIR_WSW;
+				case [ 0,  1]: s ? Dir.DIR_ENE : Dir.DIR_ESE;
+				case [ 1, -1]: Dir.DIR_NE;
+				case [ 1,  0]: s ? Dir.DIR_SSW : Dir.DIR_SSE;
+				case [ 1,  1]: Dir.DIR_NW;
+				case [ _,  _]: Std.int(time / 6) % 12;
+			}
 		}
 		else {
 			var start = Std.int(time / 6) % 12;
-			var step = if (Std.random(2) == 0) 1 else 11;
+			var step = Std.random(2) == 1 ? 1 : 11;
 
 			var bestDir = -1;
 			var bestGrad = 0;
