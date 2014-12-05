@@ -7,6 +7,7 @@ import openfl.display.Sprite;
 import openfl.display.Bitmap;
 import openfl.display.BitmapData;
 import openfl.events.Event;
+import openfl.events.MouseEvent;
 
 class Main extends Sprite {
 	var world : World;
@@ -24,6 +25,11 @@ class Main extends Sprite {
 		addChild(bitmap);
 
 		addEventListener(Event.ENTER_FRAME, tick);
+		addEventListener(MouseEvent.MOUSE_MOVE, mouseMove);
+	}
+
+	public function mouseMove(event) {
+		trace("Mouse!");
 	}
 
 	public function tick(e : Event) {
