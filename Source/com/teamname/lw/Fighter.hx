@@ -23,39 +23,32 @@ class Fighter implements Hashable {
 
 	public static inline var SIDE_ATTACK_FACTOR = 4;
 
-	public static inline var NB_SENS_MOVE = 2;
-	public static inline var NB_TRY_MOVE = 5;
-	public static inline var NB_LOCAL_DIRS = 16;
+	 public static var FIGHTER_MOVE_DIR : Array<Array<Array<Dir>>> =
+	[[	[Dir.DIR_NNE, Dir.DIR_NE , Dir.DIR_NW , Dir.DIR_ENE, Dir.DIR_WNW],
+		[Dir.DIR_NE , Dir.DIR_ENE, Dir.DIR_NNE, Dir.DIR_SE , Dir.DIR_NW ],
+		[Dir.DIR_ENE, Dir.DIR_NE , Dir.DIR_SE , Dir.DIR_NNE, Dir.DIR_SSE],
+		[Dir.DIR_ESE, Dir.DIR_SE , Dir.DIR_NE , Dir.DIR_SSE, Dir.DIR_NNE],
+		[Dir.DIR_SE , Dir.DIR_SSE, Dir.DIR_ESE, Dir.DIR_SW , Dir.DIR_NE ],
+		[Dir.DIR_SSE, Dir.DIR_SE , Dir.DIR_SW , Dir.DIR_ESE, Dir.DIR_WSW],
+		[Dir.DIR_SSW, Dir.DIR_SW , Dir.DIR_SE , Dir.DIR_WSW, Dir.DIR_ESE],
+		[Dir.DIR_SW , Dir.DIR_WSW, Dir.DIR_SSW, Dir.DIR_NW , Dir.DIR_SE ],
+		[Dir.DIR_WSW, Dir.DIR_SW , Dir.DIR_NW , Dir.DIR_SSW, Dir.DIR_NNW],
+		[Dir.DIR_WNW, Dir.DIR_NW , Dir.DIR_SW , Dir.DIR_NNW, Dir.DIR_SSE],
+		[Dir.DIR_NW , Dir.DIR_NNW, Dir.DIR_WNW, Dir.DIR_NE , Dir.DIR_SW ],
+		[Dir.DIR_NNW, Dir.DIR_NW , Dir.DIR_NE , Dir.DIR_WNW, Dir.DIR_ENE]],
 
-	public static var LOCAL_DIR = new Vector<Int>(NB_LOCAL_DIRS * 2);
-
-	// static int FIGHTER_MOVE_DIR[NB_SENS_MOVE][NB_DIRS][NB_TRY_MOVE] =
-	// public static var FIGHTER_MOVE_DIR : Vector<Vector<Vector<Int>>> =
-	// [[	[DIR_NNE, DIR_NE , DIR_NW , DIR_ENE, DIR_WNW],
-	// 	[DIR_NE , DIR_ENE, DIR_NNE, DIR_SE , DIR_NW ],
-	// 	[DIR_ENE, DIR_NE , DIR_SE , DIR_NNE, DIR_SSE],
-	// 	[DIR_ESE, DIR_SE , DIR_NE , DIR_SSE, DIR_NNE],
-	// 	[DIR_SE , DIR_SSE, DIR_ESE, DIR_SW , DIR_NE ],
-	// 	[DIR_SSE, DIR_SE , DIR_SW , DIR_ESE, DIR_WSW],
-	// 	[DIR_SSW, DIR_SW , DIR_SE , DIR_WSW, DIR_ESE],
-	// 	[DIR_SW , DIR_WSW, DIR_SSW, DIR_NW , DIR_SE ],
-	// 	[DIR_WSW, DIR_SW , DIR_NW , DIR_SSW, DIR_NNW],
-	// 	[DIR_WNW, DIR_NW , DIR_SW , DIR_NNW, DIR_SSE],
-	// 	[DIR_NW , DIR_NNW, DIR_WNW, DIR_NE , DIR_SW ],
-	// 	[DIR_NNW, DIR_NW , DIR_NE , DIR_WNW, DIR_ENE]],
-
-	// [	[DIR_NNE, DIR_NE , DIR_NW , DIR_ENE, DIR_WNW],
-	// 	[DIR_NE , DIR_NNE, DIR_ENE, DIR_NW , DIR_SE ],
-	// 	[DIR_ENE, DIR_NE , DIR_SE , DIR_NNE, DIR_SSE],
-	// 	[DIR_ESE, DIR_SE , DIR_NE , DIR_SSE, DIR_NNE],
-	// 	[DIR_SE , DIR_ESE, DIR_SSE, DIR_NE , DIR_SW ],
-	// 	[DIR_SSE, DIR_SE , DIR_SW , DIR_ESE, DIR_WSW],
-	// 	[DIR_SSW, DIR_SW , DIR_SE , DIR_WSW, DIR_ESE],
-	// 	[DIR_SW , DIR_SSW, DIR_WSW, DIR_SE , DIR_NW ],
-	// 	[DIR_WSW, DIR_SW , DIR_NW , DIR_SSW, DIR_NNW],
-	// 	[DIR_WNW, DIR_NW , DIR_SW , DIR_NNW, DIR_SSE],
-	// 	[DIR_NW , DIR_WNW, DIR_NNW, DIR_SW , DIR_NE ],
-	// 	[DIR_NNW, DIR_NW , DIR_NE , DIR_WNW, DIR_ENE]]];
+	[	[Dir.DIR_NNE, Dir.DIR_NE , Dir.DIR_NW , Dir.DIR_ENE, Dir.DIR_WNW],
+		[Dir.DIR_NE , Dir.DIR_NNE, Dir.DIR_ENE, Dir.DIR_NW , Dir.DIR_SE ],
+		[Dir.DIR_ENE, Dir.DIR_NE , Dir.DIR_SE , Dir.DIR_NNE, Dir.DIR_SSE],
+		[Dir.DIR_ESE, Dir.DIR_SE , Dir.DIR_NE , Dir.DIR_SSE, Dir.DIR_NNE],
+		[Dir.DIR_SE , Dir.DIR_ESE, Dir.DIR_SSE, Dir.DIR_NE , Dir.DIR_SW ],
+		[Dir.DIR_SSE, Dir.DIR_SE , Dir.DIR_SW , Dir.DIR_ESE, Dir.DIR_WSW],
+		[Dir.DIR_SSW, Dir.DIR_SW , Dir.DIR_SE , Dir.DIR_WSW, Dir.DIR_ESE],
+		[Dir.DIR_SW , Dir.DIR_SSW, Dir.DIR_WSW, Dir.DIR_SE , Dir.DIR_NW ],
+		[Dir.DIR_WSW, Dir.DIR_SW , Dir.DIR_NW , Dir.DIR_SSW, Dir.DIR_NNW],
+		[Dir.DIR_WNW, Dir.DIR_NW , Dir.DIR_SW , Dir.DIR_NNW, Dir.DIR_SSE],
+		[Dir.DIR_NW , Dir.DIR_WNW, Dir.DIR_NNW, Dir.DIR_SW , Dir.DIR_NE ],
+		[Dir.DIR_NNW, Dir.DIR_NW , Dir.DIR_NE , Dir.DIR_WNW, Dir.DIR_ENE]]];
 
 	// public static var FIGHTER_MOVE_OFFSET = new Vector<Vector<Vector<Int>>> [NB_SENS_MOVE][NB_DIRS][NB_TRY_MOVE];
 	// public static var FIGHTER_MOVE_X = new Vector<Vector<Vector<Int>>> [NB_SENS_MOVE][NB_DIRS][NB_TRY_MOVE];
@@ -69,131 +62,43 @@ class Fighter implements Hashable {
 	}
 
 	public function move(w : World, p : Pathfinder) {
-		var mainDir = p.getMoveDirection(x, y, w.time);
-		//TODO
-		w.moveFighter(this, x + mainDir.xOffset(), y + mainDir.yOffset());
+		var t = w.time;
+		var mainDir = p.getMoveDirection(x, y, t);
+
+		var start = Std.int(t / 6) % 12;
+		var table = Std.int(t / 3) % 2;
+
+		var dirs = FIGHTER_MOVE_DIR[table][mainDir];
+		var f = new Vector<Fighter>(5);
+
+		for (i in 0...5) {
+			var newX = x + dirs[i].xOffset();
+			var newY = y + dirs[i].yOffset();
+			f[i] = w.getFighter(newX, newY);
+			if (f[i] == null) {
+				w.moveFighter(this, newX, newY);
+				return;
+			}
+		}
+
+		for (i in 0...3) {
+			var newX = x + dirs[i].xOffset();
+			var newY = y + dirs[i].yOffset();
+			if (f[i].team != this.team) {
+				// TODO : Attack!
+				return;
+			}
+		}
+
+		/*for (i in 0...1)*/ {
+			var newX = x + mainDir.xOffset();
+			var newY = y + mainDir.yOffset();
+			// TODO : HEAL
+			return;
+		}
 	}
 
-	// public function init_move_fighters() : Void {
-	// 	var i : Int, j : Int, k : Int, dir : Int;
-
-	// 	for (k in 0...NB_SENS_MOVE)
-	// 		for (i in 0...NB_DIRS)
-	// 			for (j in 0...NB_TRY_MOVE) {
-	// 				dir = FIGHTER_MOVE_DIR[k][i][j];
-	// 				FIGHTER_MOVE_X[k][i][j] = FIGHTER_MOVE_X_REF[dir];
-	// 				FIGHTER_MOVE_Y[k][i][j] = FIGHTER_MOVE_Y_REF[dir];
-
-	// 				FIGHTER_MOVE_OFFSET[k][i][j] = 0;
-	// 				if (FIGHTER_MOVE_X[k][i][j] == 1)
-	// 					++(FIGHTER_MOVE_OFFSET[k][i][j]);
-	// 				if (FIGHTER_MOVE_X[k][i][j] == -1)
-	// 					--(FIGHTER_MOVE_OFFSET[k][i][j]);
-	// 				if (FIGHTER_MOVE_Y[k][i][j] == 1)
-	// 					FIGHTER_MOVE_OFFSET[k][i][j] += CURRENT_AREA_W;
-	// 				if (FIGHTER_MOVE_Y[k][i][j] == -1)
-	// 					FIGHTER_MOVE_OFFSET[k][i][j] -= CURRENT_AREA_W;
-	// 	}
-
-	// 	// Lol, where are CURRENT_ARMY_SIZE from?
-	// 	for (i in 0...CURRENT_ARMY_SIZE)
-	// 		disp_fighter (CURRENT_ARMY + i);
-
-	// 	/*
-	// 	* note:
-	// 	* NB_LOCAL_DIRS is 16 but it's true that 12 is enough.
-	// 	* However, I find it safer to reserve 16 slots, since
-	// 	* this way all the combinations of 1,2,4 and 8 can
-	// 	* be handled correctly - even if some are impossible.
-	// 	* And it has the advantage to avoid confusion with
-	// 	* the 12 directions represented by NB_DIRS.
-	// 	*/
-	// 	for (i in 1...NB_LOCAL_DIRS+1) {
-	// 		for (j in 0...2) {
-	// 			k = -1;
-	// 			switch (i) {
-	// 				case 1:
-	// 					k = DIR_NNW if j else DIR_NNE;
-	// 				case 3:
-	// 					k = DIR_NE;
-	// 				case 2:
-	// 					k = DIR_ENE if j else DIR_ESE;
-	// 				case 6:
-	// 					k = DIR_SE;
-	// 				case 4:
-	// 					k = DIR_SSE if j else DIR_SSW;
-	// 				case 12:
-	// 					k = DIR_SW;
-	// 				case 8:
-	// 					k = DIR_WSW if j else DIR_WNW;
-	// 				case 9:
-	// 					k = DIR_NW;
-	// 			}
-	// 			LOCAL_DIR[(i - 1) * 2 + j] = k;
-	// 		}
-	// 	}
-	// }
-
-	// public function get_main_dir(mesh : Mesh, team : Int, sens : Int, start : Int) : Void {
-	// 	var i : Int, dir : Int, dist : Int;
-	// 	MESH *mesh2;
-
-	// 	dist = AREA_START_GRADIENT;
-	// 	dir = -1;
-	// 	i = start;
-
-	// 	if (sens) {
-	// 		do {
-	// 			if ((mesh2 = mesh.link[i]))
-	// 				if (mesh2.info[team].state.grad < dist) {
-	// 					dir = i;
-	// 					dist = mesh2.info[team].state.grad;
-	// 				}
-	// 			i = (i + 1) if (i < NB_DIRS - 1) else 0;
-	// 		} while (i != start);
-	// 	}
-	// 	else {
-	// 		do {
-	// 			if ((mesh2 = mesh.link[i]))
-	// 				if (mesh2.info[team].state.grad < dist) {
-	// 					dir = i;
-	// 					dist = mesh2.info[team].state.grad;
-	// 				}
-	// 			i = (i - 1) if (i > 0) else (NB_DIRS - 1);
-	// 		} while (i != start);
-	// 	}
-
-	// 	if (dir >= 0)
-	// 		return dir;
-	// 	else
-	// 		return (GLOBAL_CLOCK % NB_TEAMS);
-	// }
-
-	// public static function get_close_dir (MESH * mesh, FIGHTER * f, team : Int, sens : Int, start : Int) : Int {
-	// 	var cursor_x : Int, cursor_y : Int, fighter_x : Int, fighter_y : Int;
-	// 	var code_dir = 0, dir : Int;
-
-	// 	fighter_x = f.x;
-	// 	fighter_y = f.y;
-	// 	cursor_x = mesh.info[team].update.cursor.x;
-	// 	cursor_y = mesh.info[team].update.cursor.y;
-
-	// 	if (cursor_y < fighter_y)
-	// 		code_dir += 1;
-	// 	if (cursor_x > fighter_x)
-	// 		code_dir += 2;
-	// 	if (cursor_y > fighter_y)
-	// 		code_dir += 4;
-	// 	if (cursor_x < fighter_x)
-	// 		code_dir += 8;
-
-	// 	if (code_dir)
-	// 		dir = LOCAL_DIR[(code_dir - 1) * 2 + (1 if sens else 0)];
-	// 	else
-	// 		dir = start;
-
-	// 	return dir;
-	// }
+	
 
 	// /*------------------------------------------------------------------*/
 	// public function move_fighters () {

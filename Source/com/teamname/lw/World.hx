@@ -32,7 +32,7 @@ class World {
 		for (p in armyPathfinders)
 			p.loadMap(bmp);
 
-		addFighters(0, 100, 100);
+		addFighters(0, 100, 1000);
 	}
 
 	public function tick() {
