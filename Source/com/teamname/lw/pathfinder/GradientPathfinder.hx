@@ -8,21 +8,19 @@ import openfl.display.BitmapData;
 import openfl.geom.Rectangle;
 
 class GradientPathfinder implements Pathfinder {
-	private static var DEFAULT_GRADIENT       (default, never) = 0x7FFFFFFF;
-	private static var DEFAULT_TARGET_GRADIENT(default, never) = 0x70000000;
 
 	private var mesh : Mesh<Int>;
 	private var targetX : Int;
 	private var targetY : Int;
 	private var targetZone : MeshZone<Int>;
-	private var targetGrad = DEFAULT_TARGET_GRADIENT;
+	private var targetGrad = 1000000;
 	private var meshBitmap : BitmapData;
 
 	public function new() {
 	}
 
 	public function loadMap(bmp : BitmapData) : Void {
-		mesh = new WriteOptimizedMesh<Int>(bmp.width, bmp.height, DEFAULT_GRADIENT);
+		mesh = new WriteOptimizedMesh<Int>(bmp.width, bmp.height, 0);
 		mesh.addBitmap(bmp);
 		mesh.mergeAll(8);
 		mesh = ReadOptimizedMesh.fromMesh(mesh);
@@ -32,7 +30,7 @@ class GradientPathfinder implements Pathfinder {
 		targetX = x;
 		targetY = y;
 		targetZone = mesh.getZone(x, y);
-		targetGrad -= dist;
+		targetGrad += dist;
 		if (targetZone != null) targetZone.value = targetGrad;
 	}
 
@@ -41,14 +39,14 @@ class GradientPathfinder implements Pathfinder {
 		trace(dir);
 		for (z in mesh.directionalIterator(dir)) {
 			var next = z.links[dir];
-			if (next != null) next.value = M.min(next.value, z.value + z.size);
+			if (next != null) next.value = M.max(next.value, z.value - z.size);
 		}
 	}
 
 	public function getDebugBitmap() : BitmapData {
 		var res = new BitmapData(mesh.width, mesh.height, true /*transparent*/);
 		for (z in mesh) {
-			var dist = z.value - targetGrad;
+			var dist = targetGrad - z.value;
 			var color = 0xFFFF0000 + (0x000001 - 0x010000) * Std.int(Math.log(dist / 100 + 1) * 128);
 			var rect = new Rectangle(z.x, z.y, z.size, z.size);
 			res.fillRect(rect, color);
