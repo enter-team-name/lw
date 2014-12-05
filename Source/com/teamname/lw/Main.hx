@@ -12,6 +12,9 @@ import openfl.events.MouseEvent;
 class Main extends Sprite {
 	var world : World;
 	var bitmap : Bitmap;
+	var lastX : Int;
+	var lastY : Int;
+
 	public function new() {
 		super();
 		trace("Hello World!");
@@ -29,7 +32,11 @@ class Main extends Sprite {
 	}
 
 	public function mouseMove(event) {
-		trace("Mouse!");
+		var x = event.localX / bitmap.scaleX;
+		var y = event.localY / bitmap.scaleY;
+		trace(x, y);
+		world.moveCursor(Std.int(x), Std.int(y), 2 * Std.int(Math.max(Math.abs(world.cursorX - x), Math.abs(world.cursorY - y))));
+		bitmap.bitmapData = world.armyPathfinders[0].getDebugBitmap();
 	}
 
 	public function tick(e : Event) {

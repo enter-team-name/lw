@@ -19,6 +19,9 @@ class World {
 	private var fighterSet(null, null) : HashSet<Fighter>;
 	private var fighterMap(null, null) : Array2<Fighter>;
 
+	public var cursorX : Int = 10;
+	public var cursorY : Int = 10;
+
 	public function new(bmp : BitmapData) {
 		// This is mostly a placeholder
 		width = bmp.width;
@@ -35,14 +38,30 @@ class World {
 		addFighters(0, 100, 1000);
 	}
 
+	// public function tick() {
+	// 	// Also a placeholder
+	// 	if (time % 2 == 0) {
+	// 		var angle = Math.PI * time / 500;
+	// 		var x = Std.int(width / 2 - 75 * Math.sin(angle));
+	// 		var y = Std.int(height / 2 + 75 * Math.cos(angle));
+	// 		for (p in armyPathfinders)
+	// 			p.setTarget(x, y, 2);
+	// 	}
+
+	// 	for (p in armyPathfinders)
+	// 		p.tick(time);
+
+	// 	for (f in fighterSet) {
+	// 		var p = armyPathfinders[f.team];
+	// 		f.move(this, p);
+	// 	}
+	// 	time++;
+	// }
+
 	public function tick() {
-		// Also a placeholder
 		if (time % 2 == 0) {
-			var angle = Math.PI * time / 500;
-			var x = Std.int(width / 2 - 75 * Math.sin(angle));
-			var y = Std.int(height / 2 + 75 * Math.cos(angle));
 			for (p in armyPathfinders)
-				p.setTarget(x, y, 2);
+				p.setTarget(cursorX, cursorY, 2);
 		}
 
 		for (p in armyPathfinders)
@@ -53,6 +72,13 @@ class World {
 			f.move(this, p);
 		}
 		time++;
+	}
+
+	public function moveCursor(x : Int, y : Int, delta : Int) {
+		cursorX = x;
+		cursorY = y;
+		for (p in armyPathfinders)
+			p.setTarget(x, y, delta);
 	}
 
 	public inline function addFighter(f : Fighter) {
