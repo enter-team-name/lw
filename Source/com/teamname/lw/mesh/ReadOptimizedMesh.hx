@@ -28,6 +28,10 @@ class ReadOptimizedMesh<T> extends Mesh<T> {
 		super(w, h, defaultValue, zones);
 	}
 
+	public static function fromMesh<T>(m : Mesh<T>) {
+		return new ReadOptimizedMesh<T>(m.width, m.height, m.defaultValue, m);
+	}
+
 	public override function directionalIterator(dir : Dir = Dir.DIR_SE) : Iterator<MeshZone<T>> {
 		switch (dir) {
 			case Dir.DIR_NNE | Dir.DIR_NE | Dir.DIR_ENE | Dir.DIR_ESE:

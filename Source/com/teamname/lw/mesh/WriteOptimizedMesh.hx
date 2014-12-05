@@ -15,6 +15,10 @@ class WriteOptimizedMesh<T> extends Mesh<T> {
 
 		super(w, h, defaultValue, zones);
 	}
+
+	public static function fromMesh<T>(m : Mesh<T>) {
+		return new WriteOptimizedMesh<T>(m.width, m.height, m.defaultValue, m);
+	}
 	
 	public inline override function directionalIterator(dir : Dir = Dir.DIR_SE) : Iterator<MeshZone<T>> {
 		return Lambda.filter(zones, function(x) return x != null).iterator();
