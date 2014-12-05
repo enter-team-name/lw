@@ -28,6 +28,6 @@ class Main extends Sprite {
 
 	public function tick(e : Event) {
 		world.tick();
-		bitmap.bitmapData = world.armyPathfinders[0].getDebugBitmap();
+		bitmap.bitmapData = world.getBitmap(0);
 	}
 }
