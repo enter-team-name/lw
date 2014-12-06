@@ -8,7 +8,9 @@
 	
 	<haxelib name="openfl" />
 	<haxelib name="polygonal-ds" />
-	
+    <haxelib name="stablexui" />
+    <haxelib name="actuate" />
+
 	<assets path="Assets" rename="assets" exclude="openfl.svg" />
 	<assets path="Assets/Maps" rename="maps" />
 	<icon path="Assets/openfl.svg" />
