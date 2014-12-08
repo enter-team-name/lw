@@ -14,10 +14,9 @@ General:
  ☐ Make README.md more informative @started (01.12.14 12:20)
  ☐ Port main objects and algorithms @started (01.12.14 11:50)
    ☐ Add list of them here @started (01.12.14 11:51)
-   ☐ mesh.c - creates array of MESHs from bitmap
-   ☐ grad.c - updates distances on each iteration
-   ☐ fighter.c - moves pixels, heals or attacks other ones
-   ☐ area.c - part of map init and some structures
+   ☐ mesh.c - creates array of MESHes from bitmap @started (14-12-06 14:15)
+   ☐ grad.c - updates distances on each iteration @started (14-12-06 14:15)
+   ☐ fighter.c - moves pixels, heals or attacks other ones @started (14-12-06 14:15)
  ☐ Select field storing method @started (01.12.14 20:34)
  ☐ Add graphics
  ☐ Testing

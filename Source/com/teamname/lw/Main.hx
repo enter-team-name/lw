@@ -90,7 +90,7 @@ class Main extends Sprite {
 			left : 150,
 			top  : 500,
 			text : '<',
-			onPress: function decreaseId(e : MouseEvent) {
+			onPress: function(e : MouseEvent) {
 				selectedId -= 1;
 				selectedId += maps.length;
 				selectedId %= maps.length;
@@ -103,7 +103,7 @@ class Main extends Sprite {
 			left : 170,
 			top  : 500,
 			text : '>',
-			onPress: function increaseId(e : MouseEvent) {
+			onPress: function(e : MouseEvent) {
 				selectedId += 1;
 				selectedId %= maps.length;
 				updateLabelsAndBitmap();
@@ -123,6 +123,7 @@ class Main extends Sprite {
 		addChild(nameText);
 
 		bitmap = new Bitmap();
+		addChild(bitmap);
 
 		updateLabelsAndBitmap();
 	}
@@ -131,7 +132,6 @@ class Main extends Sprite {
 		var bitmapData = Assets.getBitmapData("maps/" + maps[selectedId][0] + ".png");
 		bitmap.bitmapData = bitmapData;
 		bitmap.scaleX = bitmap.scaleY = Math.min(480 / bitmapData.height, 700 / bitmapData.width);
-		addChild(bitmap);
 		UIBuilder.getAs('nameText', Text).text = maps[selectedId][1];
 		UIBuilder.getAs('counterText', Text).text = (selectedId + 1) + "";
 	}
