@@ -8,7 +8,7 @@ import haxe.macro.Expr;
 import haxe.macro.ExprTools;
 
 class MeshMacros {
-	macro static function fill<T>(zl : ExprOf<Vector<MeshZone<T>>>, extra : Array<Expr>) {
+	macro public static function fill<T>(zl : ExprOf<Vector<MeshZone<T>>>, extra : Array<Expr>) : Expr {
 		if (extra.length != 12) throw "Must pass exactly 12 arguments";
 		var map = [10, 11,  0,  1,
 		            9,          2,
