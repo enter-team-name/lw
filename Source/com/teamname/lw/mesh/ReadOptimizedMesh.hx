@@ -3,6 +3,7 @@ package com.teamname.lw.mesh;
 
 import com.teamname.lw.ds.BST;
 
+import de.polygonal.ds.ArrayUtil;
 import de.polygonal.ds.Array2;
 import de.polygonal.ds.Comparable;
 
@@ -24,8 +25,10 @@ class ReadOptimizedMesh<T> extends Mesh<T> {
 
 	public function new(w : Int, h : Int, ?defaultValue : T, ?zones : Iterable<MeshZone<T>>) {
 		this.zones = new Array2<MeshZone<T>>(w, h);
-		
-		super(w, h, defaultValue, zones);
+		// Ugly hack to make the trees more or less balanced. Should eventually switch to red-black trees.
+		var arr = [for (z in zones) z];
+		ArrayUtil.shuffle(arr);
+		super(w, h, defaultValue, arr);
 	}
 
 	public static function fromMesh<T>(m : Mesh<T>) {
