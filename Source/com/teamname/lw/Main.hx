@@ -53,7 +53,7 @@ class Main extends Sprite {
 		addChild(bitmap);
 
 		addEventListener(Event.ENTER_FRAME, tick);
-		addEventListener(MouseEvent.MOUSE_MOVE, mouseMove);
+		//addEventListener(MouseEvent.MOUSE_MOVE, mouseMove);
 
 		var stopButton = UIBuilder.create(Button, {
 			id : 'stopButton',
@@ -69,7 +69,7 @@ class Main extends Sprite {
 		removeChild(UIBuilder.getAs('stopButton', Button));
 
 		removeEventListener(Event.ENTER_FRAME, tick);
-		removeEventListener(MouseEvent.MOUSE_MOVE, mouseMove);
+		//removeEventListener(MouseEvent.MOUSE_MOVE, mouseMove);
 		
 		removeChild(bitmap);
 
@@ -136,16 +136,8 @@ class Main extends Sprite {
 		UIBuilder.getAs('counterText', Text).text = (selectedId + 1) + "";
 	}
 
-	public function mouseMove(event) {
-		var x = event.stageX / bitmap.scaleX;
-		var y = event.stageY / bitmap.scaleY;
-		trace(x, y);
-		world.moveCursor(Std.int(x), Std.int(y), 2 * Std.int(Math.max(Math.abs(world.cursorX - x), Math.abs(world.cursorY - y))));
-		bitmap.bitmapData = world.armyPathfinders[0].getDebugBitmap();
-	}
-
 	public function tick(e : Event) {
 		world.tick();
-		bitmap.bitmapData = world.getBitmap(0);
+		bitmap.bitmapData = world.getBitmap(0, false);
 	}
 }

@@ -24,7 +24,7 @@ class ReadOptimizedMesh<T> extends Mesh<T> {
 
 	public function new(w : Int, h : Int, ?defaultValue : T, ?zones : Iterable<MeshZone<T>>) {
 		this.zones = new Array2<MeshZone<T>>(w, h);
-
+		
 		super(w, h, defaultValue, zones);
 	}
 
@@ -62,6 +62,16 @@ class ReadOptimizedMesh<T> extends Mesh<T> {
 	}
 
 	public inline override function getZone(x : Int, y : Int) : MeshZone<T> {
+		if (x < 0 || x >= width || y < 0 || y >= height) return null;
+		return zones.get(x, y);
+	}
+
+	public inline override function getZoneByTopLeft(x : Int, y : Int) : MeshZone<T> {
+		if (x < 0 || x >= width || y < 0 || y >= height) return null;
+		return zones.get(x, y);
+	}
+
+	public inline override function getZoneByKeyPoint(x : Int, y : Int) : MeshZone<T> {
 		if (x < 0 || x >= width || y < 0 || y >= height) return null;
 		return zones.get(x, y);
 	}

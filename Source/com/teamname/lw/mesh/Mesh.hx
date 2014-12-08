@@ -1,12 +1,15 @@
 
 package com.teamname.lw.mesh;
 
-import com.teamname.lw.Utils;
+import com.teamname.lw.macro.UnrollLoopMacros.*;
+import com.teamname.lw.Utils.*;
+
+import de.polygonal.ds.Array2;
+import de.polygonal.ds.HashSet;
+import de.polygonal.ds.M;
 
 import openfl.display.BitmapData;
 import openfl.geom.Rectangle;
-
-using com.teamname.lw.macro.MeshMacros;
 
 class Mesh<T> {
 	public var width(default, null) : Int;
@@ -17,7 +20,9 @@ class Mesh<T> {
 		width = w;
 		height = h;
 		this.defaultValue = defaultValue;
-		if (zones != null)
+		if (zones == null)
+			initZones();
+		else
 			for (z in zones) addZone(z);
 	}
 
@@ -39,15 +44,20 @@ class Mesh<T> {
 	}
 
 	public function getZone(x : Int, y : Int) : MeshZone<T> {
-		for (z in this) {
-			if (z.x <= x && x < z.x + z.size && z.y <= y && y < z.y + z.size)
-				return z;
+		for (i in 0...MeshZone.MAX_SIZE_LOG) {
+			var mask = (-1) << i;
+			var z = getZoneByTopLeft(x & mask, y & mask);
+			if (z != null) return z;
 		}
 		return null;
 	}
 
+	public function getZoneByTopLeft(x : Int, y : Int) : MeshZone<T> {
+		return getZoneByKeyPoint(x, y);
+	}
+
 	public function getZoneByKeyPoint(x : Int, y : Int) : MeshZone<T> {
-		return getZone(x, y);
+		throw "This method should be implemented in subclasses";
 	}
 
 	public function toBitmap(borderColor : Int = 0xFF0000FF, fillColor : Int = 0xFFFFFFFF) : BitmapData {
@@ -61,114 +71,97 @@ class Mesh<T> {
 		return res;
 	}
 
-	private function shouldMerge(x : Int, y : Int, sizeLog : Int, nw : MeshZone<T>, ne : MeshZone<T>, sw : MeshZone<T>, se : MeshZone<T>) : Bool {
-		for (z in [nw, ne, sw, se]) {
-			if (z == null || z.sizeLog != sizeLog)
-				return false;
+	private function initZones() {
+		// Boundary of remaining area (w n inclusive, e s exclusive)
+		// At each iteration all 4 values are divisible by size
+		var w = 0;
+		var e = width;
+		var n = 0;
+		var s = height;
 
-			// Each zone should have at most one neighbor in each cardinal direction
-			var zl = z.links;
-			if (zl[Dir.DIR_NNW] != zl[Dir.DIR_NNE] || zl[Dir.DIR_ENE] != zl[Dir.DIR_ESE] ||
-				zl[Dir.DIR_SSE] != zl[Dir.DIR_SSW] || zl[Dir.DIR_WSW] != zl[Dir.DIR_WNW])
-				return false;
+		for (sizeLog in 0...MeshZone.MAX_SIZE_LOG) {
+			var size = 1 << sizeLog;
+
+			do {
+				for (i in range(n, s, size))
+					addZone(new MeshZone<T>(w, i, sizeLog, defaultValue));
+				w += size;
+			} while (w % (2 * size) != 0 && w < e);
+			if (w >= e) break;
+
+			do {
+				for (i in range(n, s, size))
+					addZone(new MeshZone<T>(e - size, i, sizeLog, defaultValue));
+				e -= size;
+			} while (e % (2 * size) != 0 && w < e);
+			if (w >= e) break;
+
+			do {
+				for (i in range(w, e, size))
+					addZone(new MeshZone<T>(i, n, sizeLog, defaultValue));
+				n += size;
+			} while (n % (2 * size) != 0 && n < s);
+			if (n >= s) break;
+
+			do {
+				for (i in range(w, e, size))
+					addZone(new MeshZone<T>(i, s - size, sizeLog, defaultValue));
+				s -= size;
+			} while (s % (2 * size) != 0 && n < s);
+			if (n >= s) break;
 		}
 
-		var nwl = nw.links;
-		var nel = ne.links;
-		var swl = sw.links;
-		var sel = se.links;
+		for (z in this)
+			fixLinks(z);
+	}
 
+	private function tryMerge(x : Int, y : Int, sizeLog : Int, nw : MeshZone<T>, ne : MeshZone<T>, sw : MeshZone<T>, se : MeshZone<T>) : Bool {
+		unrollFor(for (z in [nw, ne, sw, se]) {
+			if (z == null || z.sizeLog != sizeLog)
+				return false;
+		});
+		
+		// Each zone should have at most one neighbor in each outfacing cardinal direction
+		var size = 1 << sizeLog;
+		if (getZoneByKeyPoint(x +     size    , y            - 1) != getZoneByKeyPoint(x + 2 * size - 1, y            - 1) ||
+			getZoneByKeyPoint(x + 2 * size    , y               ) != getZoneByKeyPoint(x + 2 * size    , y +     size - 1) ||
+			getZoneByKeyPoint(x + 2 * size    , y +     size    ) != getZoneByKeyPoint(x + 2 * size    , y + 2 * size - 1) ||
+			getZoneByKeyPoint(x + 2 * size - 1, y + 2 * size    ) != getZoneByKeyPoint(x +     size    , y + 2 * size    ) ||
+			getZoneByKeyPoint(x +     size - 1, y + 2 * size    ) != getZoneByKeyPoint(x               , y + 2 * size    ) ||
+			getZoneByKeyPoint(x +          - 1, y + 2 * size - 1) != getZoneByKeyPoint(x            - 1, y +     size    ) ||
+			getZoneByKeyPoint(x +          - 1, y +     size - 1) != getZoneByKeyPoint(x            - 1, y               ) ||
+			getZoneByKeyPoint(x               , y            - 1) != getZoneByKeyPoint(x +     size - 1, y            - 1))
+			return false;
+
+		var newSize = 2 * size;
 		// There should be zones diagonally adjecent to the new zone
 		// Not sure why this is neccessary, but the original code checks it
-		if (nwl[Dir.DIR_NW] == null || nel[Dir.DIR_NE] == null &&
-			swl[Dir.DIR_SW] == null || sel[Dir.DIR_SE] == null)
+		if (getZoneByKeyPoint(x           - 1, y           - 1) == null ||
+			getZoneByKeyPoint(x + newSize + 1, y           - 1) == null ||
+			getZoneByKeyPoint(x           - 1, y + newSize + 1) == null ||
+			getZoneByKeyPoint(x + newSize + 1, y + newSize + 1) == null)
 			return false;
 
-		// Zones should be properly connected to one another
-		// (this is supposed to look like a table)
-		if (                          nwl[Dir.DIR_ESE] != ne || nwl[Dir.DIR_SSE] != sw || nwl[Dir.DIR_SE]  != se ||
-			nel[Dir.DIR_WSW] != nw ||                           nel[Dir.DIR_SW]  != sw || nel[Dir.DIR_SSW] != se ||
-			swl[Dir.DIR_NNE] != nw || swl[Dir.DIR_NE]  != ne ||                           swl[Dir.DIR_ENE] != se ||
-			sel[Dir.DIR_NW]  != nw || sel[Dir.DIR_NNW] != ne || sel[Dir.DIR_WNW] != sw                          )
-			return false;
-
-		// Not sure how this can be wrong, but let's check it just in case
-		var size = 1 << sizeLog;
-		if (nw.x != x        || nw.y != y        ||
-			ne.x != x + size || ne.y != y        ||
-			sw.x != x        || sw.y != y + size ||
-			se.x != x + size || se.y != y + size)
-			return false;
-
+		unrollFor(for (z in [nw, ne, sw, se]) {
+			removeZone(z);
+		});
+		addZone(new MeshZone<T>(x, y, sizeLog + 1, defaultValue));
 		return true;
 	}
 
-	private function merge4Zones(x : Int, y : Int, sizeLog : Int, nw : MeshZone<T>, ne : MeshZone<T>, sw : MeshZone<T>, se : MeshZone<T>) {
-		var newZone = new MeshZone<T>(x, y, sizeLog + 1, defaultValue);
+	private function splitZone(z : MeshZone<T>, dirty : HashSet<MeshZone<T>>) {
+		//trace('splitZone(${z.x}, ${z.y})');
 
-		var nwl = nw.links;
-		var nel = ne.links;
-		var swl = sw.links;
-		var sel = se.links;
-		var nzl = newZone.links;
+		var w = getZoneByKeyPoint(z.x - 1, z.y);
+		var e = getZoneByKeyPoint(z.x + z.size, z.y);
+		var n = getZoneByKeyPoint(z.x, z.y - 1);
+		var s = getZoneByKeyPoint(z.x, z.y + z.size);
 
-
-		nzl.fill(nwl[10], nwl[11], nel[0] , nel[1] ,
-		         nwl[9] ,                   nel[2] ,
-		         swl[8] ,                   sel[2] ,
-		         swl[7] , swl[6] , sel[5] , sel[4] );
-
-		for (t in nzl) {
-			if (t != null) {
-				var tl = t.links;
-				for (j in 0...12) {
-					var z = tl[j];
-					if (z == nw || z == ne || z == sw || z == se)
-						tl[j] = newZone;
-				}
-			}
-		}
-
-		removeZone(nw);
-		removeZone(ne);
-		removeZone(sw);
-		removeZone(se);
-		addZone(newZone);
-	}
-
-	public function mergeIteration(sizeLog : Int) : Bool {
-		var size = 1 << sizeLog;
-		var mergedSomething = false;
-		for (x in new Range(0, width, 2 * size)) {
-			trace(sizeLog, x);
-			for (y in new Range(0, height, 2 * size)) {
-				//trace(sizeLog, x, y);
-
-				var nw = getZoneByKeyPoint(x       , y       );
-				var ne = getZoneByKeyPoint(x + size, y       );
-				var sw = getZoneByKeyPoint(x       , y + size);
-				var se = getZoneByKeyPoint(x + size, y + size);
-
-				if (shouldMerge(x, y, sizeLog, nw, ne, sw, se)) {
-					merge4Zones(x, y, sizeLog, nw, ne, sw, se);
-					mergedSomething = true;
-				}
-			}
-		}
-		return mergedSomething;
-	}
-
-	public function mergeAll(maxSizeLog : Int = 100) {
-		for (i in 0...maxSizeLog + 1) {
-			if (!mergeIteration(i)) return;
-		}
-	}
-
-	public function splitZone(z : MeshZone<T>) {
-		for (z1 in z.links) {
+		unrollFor(for (z1 in [w, e, n, s]) {
 			// No infinite recursion because z.size is strictly increasing, and is bounded by mesh size
-			if (z1.sizeLog > z.sizeLog) splitZone(z1);
-		}
+			if (z1 != null && z1.sizeLog > z.sizeLog)
+				splitZone(z1, dirty);
+		});
 
 		var size = 1 << (z.sizeLog - 1);
 		var nw = new MeshZone<T>(z.x       , z.y       , z.sizeLog - 1, z.value);
@@ -176,105 +169,97 @@ class Mesh<T> {
 		var sw = new MeshZone<T>(z.x       , z.y + size, z.sizeLog - 1, z.value);
 		var se = new MeshZone<T>(z.x + size, z.y + size, z.sizeLog - 1, z.value);
 
-		var zl = z.links;
-		var nwl = nw.links;
-		var nel = ne.links;
-		var swl = sw.links;
-		var sel = se.links;
-
-		nwl.fill(zl[10], zl[11], zl[11], zl[1] ,
-		         zl[9] ,                 ne    ,
-		         zl[9] ,                 ne    ,
-		         zl[8] , sw    , sw    , se    );
-
-		nel.fill(zl[11], zl[0] , zl[0] , zl[1] ,
-		         nw    ,                 zl[2] ,
-		         nw    ,                 zl[2] ,
-		         sw    , se    , se    , zl[3] );
-		
-		swl.fill(zl[9] , nw    , nw    , ne    ,
-		         zl[8] ,                 se    ,
-		         zl[8] ,                 se    ,
-		         zl[7] , zl[6] , zl[6] , zl[5] );
-
-		sel.fill(nw    , ne    , ne    , zl[2] ,
-		         sw    ,                 zl[3] ,
-		         sw    ,                 zl[3] ,
-		         zl[6] , zl[5] , zl[5] , zl[4] );
-
 		removeZone(z);
-		addZone(nw);
-		addZone(ne);
-		addZone(sw);
-		addZone(se);
-
-		for (z1 in zl) {
-			fixLinks(z1);
-		}
+		unrollFor(for (z1 in [nw, ne, sw, se]) {
+			addZone(z1);
+			dirty.set(z1);
+		});
+		//trace('/splitZone(${z.x}, ${z.y})');
 	}
 
 	private function fixLinks(z : MeshZone<T>) {
+		//trace('fix(${z.x}, ${z.y})');
 		var w = z.x;
 		var e = z.x + z.size - 1;
 		var n = z.y;
 		var s = z.y + z.size - 1;
-		z.links.fill(getNextCellZone(w, n, -1, -1), getNextCellZone(w, n,  0, -1), getNextCellZone(e, n,  0, -1), getNextCellZone(e, n,  1, -1),
-		             getNextCellZone(w, n, -1,  0),                                                               getNextCellZone(e, n,  1,  0),
-		             getNextCellZone(w, s, -1,  0),                                                               getNextCellZone(e, s,  1,  0),
-		             getNextCellZone(w, s, -1,  1), getNextCellZone(w, s,  0,  1), getNextCellZone(e, s,  0,  1), getNextCellZone(e, s,  1,  1));
+		z.fillLinks(getZoneByKeyPoint(w - 1, n - 1), getZoneByKeyPoint(w    , n - 1), getZoneByKeyPoint(e    , n - 1), getZoneByKeyPoint(e + 1, n - 1),
+		            getZoneByKeyPoint(w - 1, n    ),                                                                   getZoneByKeyPoint(e + 1, n    ),
+		            getZoneByKeyPoint(w - 1, s    ),                                                                   getZoneByKeyPoint(e + 1, s    ),
+		            getZoneByKeyPoint(w - 1, s + 1), getZoneByKeyPoint(w    , s + 1), getZoneByKeyPoint(e    , s + 1), getZoneByKeyPoint(e + 1, s + 1));
 	}
 
-	// TODO Portals
-	private inline function getNextCellX(x : Int, y : Int, dx : Int, dy : Int) {
-		return x + dx;
-	}
+	public function onWallsUpdate(x : Int, y : Int, w : Int, h : Int, walls : Array2<Bool>) {
+		var dirty = new HashSet<MeshZone<T>>(512);
+		trace("onWallsUpdate");
 
-	// TODO Portals
-	private inline function getNextCellY(x : Int, y : Int, dx : Int, dy : Int) {
-		return y + dy;
-	}
-
-	private inline function getNextCellZone(x : Int, y : Int, dx : Int, dy : Int) {
-		return getZoneByKeyPoint(getNextCellX(x, y, dx, dy), getNextCellY(x, y, dx, dy));
-	}
-
-	public function addRectangle(x : Int, y : Int, w : Int, h : Int, ?pred : Int -> Int -> Bool) {
-		for (i in 0...w) {
-			//trace(i);
-			for (j in 0...h)
-				if (pred == null || pred(i, j))
-					addZone(new MeshZone<T>(x + i, y + j, 0, defaultValue));
+		// Step 1: remove
+		for (i in x...x + w) {
+			for (j in y...y + h) {
+				if (!walls.get(i, j)) continue;
+				var z = getZone(i, j);
+				while (z != null && z.sizeLog > 0) {
+					for (z1 in z.links) {
+						if (z1 != null) {
+							dirty.set(z1);
+						}
+					}
+					splitZone(z, dirty);
+					z = getZone(i, j);
+				}
+				if (z != null)
+					removeZone(z);
+			}
 		}
 
-		for (i in 0...w) {
-			trace(i);
-			for (j in 0...h) {
-				if (pred == null || pred(i, j)) {
-					var zl = getZoneByKeyPoint(x + i, y + j).links;
-	
-					for (k in 0...12) {
-						var dx = Dir.xOffsets[k];
-						var dy = Dir.yOffsets[k];
-	
-						if (0 <= i + dx && i + dx < w && 0 <= j + dy && j + dy < h && (pred == null || pred(i + dx, j + dy)))
-							zl[k] = getZoneByKeyPoint(x + i + dx, y + j + dy);
+		// Step 2: add
+		for (i in x...x + w) {
+			for (j in y...y + h) {
+				if (!walls.get(i, j) && getZone(i, j) == null)
+					addZone(new MeshZone<T>(i, j, 0, defaultValue));
+			}
+		}
+
+		// Step 3: merge
+		for (sizeLog in 0...MeshZone.MAX_SIZE_LOG + 10) {
+			var size = 1 << sizeLog;
+			var mergedSomething = false;
+
+			var mask = (-1) << (sizeLog + 1);
+			var startX = 2 * size + ((x - 1) & mask); // First number >= x divisible by 2 * size
+			var startY = 2 * size + ((y - 1) & mask); // First number >= y divisible by 2 * size
+
+			trace(size, startX, startY);
+			for (i in range(startX, x + w, 2 * size)) {
+				for (j in range(startY, y + h, 2 * size)) {
+					var nw = getZoneByTopLeft(i       , j       );
+					var ne = getZoneByTopLeft(i + size, j       );
+					var sw = getZoneByTopLeft(i       , j + size);
+					var se = getZoneByTopLeft(i + size, j + size);
+
+					if (tryMerge(i, j, sizeLog, nw, ne, sw, se)) {
+						mergedSomething = true;
 					}
 				}
 			}
-		}
-	}
 
-	public function addBitmap(bmp : BitmapData, x : Int = 0, y : Int = 0, ?pred : Int -> Bool) {
-		if (pred == null) {
-			pred = function(c) {
-				var r = (c >> 16) & 0xFF;
-				var g = (c >> 8) & 0xFF;
-				var b = c & 0xFF;
-				return 6 * r + 3 * g + b > 315;
-			};
+
+			if (!mergedSomething) break;
 		}
-		addRectangle(x, y, bmp.width, bmp.height, function(x, y) {
-			return pred(bmp.getPixel(x, y));
-		});
+
+		// Step 4: fix links
+		for (i in x - 1...x + w + 1) {
+			for (j in y - 1...y + h + 1) {
+				var z = getZoneByKeyPoint(i, j);
+				if (z != null) dirty.set(z);
+			}
+		}
+
+		for (z in dirty) {
+			if (getZoneByTopLeft(z.x, z.y) == z) // if still exists
+				fixLinks(z);
+		}
+
+		// Step 5: reapply portals
 	}
 }

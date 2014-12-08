@@ -7,78 +7,57 @@ import de.polygonal.ds.Array2;
 import de.polygonal.ds.HashSet;
 
 import openfl.display.BitmapData;
+import openfl.geom.Rectangle;
 
 class World {
-	public var armyPathfinders(default, null) = new Array<Pathfinder>();
+	public var teams(default, never) = new Array<Team>();
 
 	public var width(default, null) : Int;
 	public var height(default, null) : Int;
 
 	public var time(default, null) : Int;
 
-	private var fighterSet(null, null) : HashSet<Fighter>;
-	private var fighterMap(null, null) : Array2<Fighter>;
+	private var fighterSet : HashSet<Fighter>;
+	private var fighterMap : Array2<Fighter>;
 
-	public var cursorX : Int = 10;
-	public var cursorY : Int = 10;
+	private var walls : Array2<Bool>;
 
 	public function new(bmp : BitmapData) {
 		// This is mostly a placeholder
 		width = bmp.width;
 		height = bmp.height;
 		time = 0;
-		fighterSet = new HashSet<Fighter>(512);
+		fighterSet = new HashSet<Fighter>(1024);
 		fighterMap = new Array2<Fighter>(width, height);
+		walls = new Array2<Bool>(width, height);
 
-		armyPathfinders.push(new GradientPathfinder());
+		teams.push(new Team(new GradientPathfinder(width, height), "Green", 0xFF00FF00));
+		teams.push(new Team(new GradientPathfinder(width, height), "Blue", 0xFF0000FF));
 
-		for (p in armyPathfinders)
-			p.loadMap(bmp);
+		updateWallsFromBitmap(0, 0, bmp);
 
-		addFighters(0, 100, 1000);
+		addRandomFighters(teams[0], 100, 300);
+		addRandomFighters(teams[1], 100, 300);
 	}
-
-	// public function tick() {
-	// 	// Also a placeholder
-	// 	if (time % 2 == 0) {
-	// 		var angle = Math.PI * time / 500;
-	// 		var x = Std.int(width / 2 - 75 * Math.sin(angle));
-	// 		var y = Std.int(height / 2 + 75 * Math.cos(angle));
-	// 		for (p in armyPathfinders)
-	// 			p.setTarget(x, y, 2);
-	// 	}
-
-	// 	for (p in armyPathfinders)
-	// 		p.tick(time);
-
-	// 	for (f in fighterSet) {
-	// 		var p = armyPathfinders[f.team];
-	// 		f.move(this, p);
-	// 	}
-	// 	time++;
-	// }
 
 	public function tick() {
+		// Also a placeholder
 		if (time % 2 == 0) {
-			for (p in armyPathfinders)
-				p.setTarget(cursorX, cursorY, 2);
+			var angle = Math.PI * time / 500;
+			var x = Std.int(width / 2 - 75 * Math.sin(angle));
+			var y1 = Std.int(height / 2 + 75 * Math.cos(angle));
+			var y2 = Std.int(height / 2 - 75 * Math.cos(angle));
+			teams[0].pathfinder.setTarget(x, y1, 2);
+			teams[1].pathfinder.setTarget(x, y2, 2);
 		}
 
-		for (p in armyPathfinders)
-			p.tick(time);
+		for (t in teams)
+			t.tick(time);
 
 		for (f in fighterSet) {
-			var p = armyPathfinders[f.team];
-			f.move(this, p);
+			f.move(this);
 		}
 		time++;
-	}
-
-	public function moveCursor(x : Int, y : Int, delta : Int) {
-		cursorX = x;
-		cursorY = y;
-		for (p in armyPathfinders)
-			p.setTarget(x, y, delta);
 	}
 
 	public inline function addFighter(f : Fighter) {
@@ -107,7 +86,7 @@ class World {
 		return fighterSet.remove(f);
 	}
 
-	private function addFighters(team : Int, hp : Int, count : Int = 1) {
+	private function addRandomFighters(team : Team, hp : Int, count : Int = 1) {
 		for (i in 0...count) {
 			var x = Std.random(width);
 			var y = Std.random(height);
@@ -116,16 +95,53 @@ class World {
 		}
 	}
 
-	public function getBitmap(debugTeam : Int = -1) : BitmapData {
-		var bmp = if (debugTeam == -1)
+	public function isWall(x : Int, y : Int) : Bool {
+		return walls.get(x, y);
+	}
+
+	public function updateWalls(x : Int, y : Int, w : Int, h : Int, pred : Int -> Int -> Bool -> Bool) {
+		for (i in x...x + w) {
+			for (j in y...y + h) {
+				walls.set(i, j, pred(i, j, walls.get(i, j)));
+			}
+		}
+		for (t in teams) {
+			t.pathfinder.onWallsUpdate(x, y, w, h, walls);
+		}
+	}
+
+	public function updateWallsFromBitmap(x : Int, y : Int, bmp : BitmapData) {
+		for (i in 0...bmp.width) {
+			for (j in 0...bmp.height) {
+				var color = bmp.getPixel(i, j);
+				var r = (color >> 16) & 0xFF;
+				var g = (color >> 8) & 0xFF;
+				var b = color & 0xFF;
+				var value = 6 * r + 3 * g + b < 315;
+				walls.set(x + i, y + j, value);
+			}
+		}
+		for (t in teams) {
+			t.pathfinder.onWallsUpdate(x, y, bmp.width, bmp.height, walls);
+		}
+	}
+
+	public function getBitmap(debugTeam : Int = -1, ?extra : Dynamic) : BitmapData {
+		var res = if (debugTeam == -1)
 			new BitmapData(width, height, true /*transparent*/)
 		else
-			armyPathfinders[debugTeam].getDebugBitmap();
+			teams[debugTeam].pathfinder.getDebugBitmap(extra);
 
-		for (f in fighterSet) {
-			bmp.setPixel(f.x    , f.y    , 0xFF00FF00);
+		for (t in teams) {
+			var pf = t.pathfinder;
+			res.fillRect(new Rectangle(pf.targetX - 10, pf.targetY - 1, 20, 2), t.color);
+			res.fillRect(new Rectangle(pf.targetX - 1, pf.targetY - 10, 2, 20), t.color);
 		}
 
-		return bmp;
+		for (f in fighterSet) {
+			res.setPixel(f.x, f.y, f.team.color);
+		}
+
+		return res;
 	}
 }

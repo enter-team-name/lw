@@ -11,7 +11,7 @@ class Fighter implements Hashable {
 	public var x(default, default) : Int;
 	public var y(default, default) : Int;
 	public var health(default, null) : Int;
-	public var team(default, null) : Int;
+	public var team(default, null) : Team;
 	public var last_dir(default, null) : Int;
 
 	/**
@@ -19,7 +19,7 @@ class Fighter implements Hashable {
 	 * A hash table transforms this key into an index of an array element by using a hash function.<br/>
 	 * <warn>This value should never be changed by the user.</warn>
 	 */
-	public var key : Int = Std.random(0x8000000);
+	public var key : Int = Std.random(0xFFFFFF);
 
 	public static inline var SIDE_ATTACK_FACTOR = 4;
 
@@ -54,14 +54,15 @@ class Fighter implements Hashable {
 	// public static var FIGHTER_MOVE_X = new Vector<Vector<Vector<Int>>> [NB_SENS_MOVE][NB_DIRS][NB_TRY_MOVE];
 	// public static var FIGHTER_MOVE_Y = new Vector<Vector<Vector<Int>>> [NB_SENS_MOVE][NB_DIRS][NB_TRY_MOVE];
 
-	public function new(x : Int, y : Int, team : Int, health : Int) {
+	public function new(x : Int, y : Int, team : Team, health : Int) {
 		this.x = x;
 		this.y = y;
 		this.health = health;
 		this.team = team;
 	}
 
-	public function move(w : World, p : Pathfinder) {
+	public function move(w : World) {
+		var p = team.pathfinder;
 		var t = w.time;
 		var mainDir = p.getMoveDirection(x, y, t);
 

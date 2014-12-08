@@ -37,6 +37,10 @@ class Range {
 }
 
 class Utils {
+	public static function range(from : Int, ?to : Int, ?step : Int) {
+		return new Range(from, to, step);
+	}
+
 	public static function max(it : Iterable<Int>) : Int {
 		var res : Null<Int> = null;
 		for (x in it) {

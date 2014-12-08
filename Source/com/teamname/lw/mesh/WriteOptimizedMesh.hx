@@ -25,6 +25,12 @@ class WriteOptimizedMesh<T> extends Mesh<T> {
 	}
 
 	private override function addZone(z : MeshZone<T>) {
+		for (i in z.x...z.x + z.size) {
+			for (j in z.y...z.y + z.size) {
+				if (keyPoints.get(i, j) != null) throw "Overlapping zones!";
+			}
+		}
+
 		zones.set(z.x, z.y, z);
 		if (z.sizeLog == 0) {
 			keyPoints.set(z.x, z.y, z);
@@ -55,9 +61,12 @@ class WriteOptimizedMesh<T> extends Mesh<T> {
 	}
 
 	public inline override function getZoneByKeyPoint(x : Int, y : Int) : MeshZone<T> {
-		return if (0 <= x && x < width && 0 <= y && y < height)
-			keyPoints.get(x, y);
-		else
-			null;
+		if (x < 0 || x >= width || y < 0 || y >= height) return null;
+		return keyPoints.get(x, y);
+	}
+
+	public inline override function getZoneByTopLeft(x : Int, y : Int) : MeshZone<T> {
+		if (x < 0 || x >= width || y < 0 || y >= height) return null;
+		return zones.get(x, y);
 	}
 }

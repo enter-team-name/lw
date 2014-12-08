@@ -2,6 +2,7 @@ package com.teamname.lw.pathfinder;
 
 import com.teamname.lw.mesh.*;
 
+import de.polygonal.ds.Array2;
 import de.polygonal.ds.M;
 
 import openfl.display.BitmapData;
@@ -10,21 +11,24 @@ import openfl.geom.Rectangle;
 class GradientPathfinder implements Pathfinder {
 	private static inline var MAX_DIST = 1000000;
 
-	private var mesh : Mesh<Int>;
-	private var targetX : Int;
-	private var targetY : Int;
-	private var targetZone : MeshZone<Int>;
-	private var targetGrad = MAX_DIST;
-	private var meshBitmap : BitmapData;
+	public var width(default, null) : Int;
+	public var height(default, null) : Int;
 
-	public function new() {
+	public var targetX(default, null) : Int;
+	public var targetY(default, null) : Int;
+
+	private var mesh : Mesh<Int>;
+	private var targetZone : MeshZone<Int>;
+	private var targetGrad : Int = MAX_DIST;
+
+	private var running = false;
+
+	public function new(width : Int, height : Int) {
+		mesh = new WriteOptimizedMesh<Int>(width, height, 0);
 	}
 
-	public function loadMap(bmp : BitmapData) : Void {
-		mesh = new WriteOptimizedMesh<Int>(bmp.width, bmp.height, 0);
-		mesh.addBitmap(bmp);
-		mesh.mergeAll(8);
-		mesh = ReadOptimizedMesh.fromMesh(mesh);
+	public function onWallsUpdate(x : Int, y : Int, w : Int, h : Int, walls : Array2<Bool>) : Void {
+		mesh.onWallsUpdate(x, y, w, h, walls);
 	}
 
 	public function setTarget(x : Int, y : Int, dist : Int) : Void {
@@ -36,6 +40,11 @@ class GradientPathfinder implements Pathfinder {
 	}
 
 	public function tick(time : Int) : Void {
+		if (!running) {
+			mesh = ReadOptimizedMesh.fromMesh(mesh);
+			running = true;
+		}
+
 		var dir = (time * 7) % 12;
 		trace(dir);
 		for (z in mesh.directionalIterator(dir)) {
@@ -44,16 +53,23 @@ class GradientPathfinder implements Pathfinder {
 		}
 	}
 
-	public function getDebugBitmap() : BitmapData {
+	public function getDebugBitmap(randomColors : Bool) : BitmapData {
 		var res = new BitmapData(mesh.width, mesh.height, true /*transparent*/);
 		for (z in mesh) {
-			var dist = targetGrad - z.value;
-			var color = 0xFFFF0000 + (0x000001 - 0x010000) * Std.int(Math.log(dist / 100 + 1) * 128);
+			var color;
+			if (randomColors) {
+				// No keyboards were harmed in the generating of these pseudo-random coefficients
+				color = 0xFF000000 + (234523 * z.x + 126712 * z.y + 5641235 * z.sizeLog) % 0x1000000;
+			} else {
+				var dist = targetGrad - z.value;
+				var scaled = Std.int(Math.log(dist / 100 + 1) * 128);
+				if (scaled < 0) trace("OMG, negative distances!");
+				if (scaled > 255) scaled = 255;
+				color = 0xFFFF0000 + (0x000001 - 0x010000) * scaled;
+			}
 			var rect = new Rectangle(z.x, z.y, z.size, z.size);
 			res.fillRect(rect, color);
 		}
-		res.fillRect(new Rectangle(targetX - 10, targetY - 1, 20, 2), 0xFF000000);
-		res.fillRect(new Rectangle(targetX - 1, targetY - 10, 2, 20), 0xFF000000);
 		return res;
 	}
 

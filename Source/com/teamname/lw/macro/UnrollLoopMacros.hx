@@ -53,7 +53,7 @@ class UnrollLoopMacros {
 					expr : ExprDef.EBlock(exprs),
 					pos : e.pos
 				}
-				trace(ExprTools.toString(res));
+				// trace(ExprTools.toString(res));
 				return res;
 			default:
 				return e;
