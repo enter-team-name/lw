@@ -11,8 +11,8 @@
     <haxelib name="stablexui" />
     <haxelib name="actuate" />
 
-	<assets path="Assets" rename="assets" exclude="openfl.svg" />
+	<assets path="Assets" rename="assets" exclude="LW.png" />
 	<assets path="Assets/Maps" rename="maps" />
-	<icon path="Assets/openfl.svg" />
+	<icon path="Assets/LW.png" />
 	
 </project>
