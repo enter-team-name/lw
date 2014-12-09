@@ -22,6 +22,8 @@ class World {
 
 	private var walls : Array2<Bool>;
 
+	public var maxFighterHealth : Int = 16384;
+
 	public function new(bmp : BitmapData) {
 		// This is mostly a placeholder
 		width = bmp.width;
@@ -36,8 +38,8 @@ class World {
 
 		updateWallsFromBitmap(0, 0, bmp);
 
-		addRandomFighters(teams[0], 100, 300);
-		addRandomFighters(teams[1], 100, 300);
+		addRandomFighters(teams[0], maxFighterHealth - 1, 300);
+		addRandomFighters(teams[1], maxFighterHealth - 1, 300);
 	}
 
 	public function tick() {
@@ -139,7 +141,11 @@ class World {
 		}
 
 		for (f in fighterSet) {
-			res.setPixel(f.x, f.y, f.team.color);
+			var color = f.team.color;
+			var r = Std.int(((color && 0xFF0000) >> 16) * f.health / maxFighterHealth);
+			var g = Std.int(((color && 0x00FF00) >> 8) * f.health / maxFighterHealth);
+			var b = Std.int((color && 0x0000FF) * f.health / maxFighterHealth);
+			res.setPixel(f.x, f.y, r * 0x010000 + g * 0x000100 + b);
 		}
 
 		return res;
