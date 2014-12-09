@@ -14,32 +14,40 @@ class World {
 
 	public var width(default, null) : Int;
 	public var height(default, null) : Int;
-
 	public var time(default, null) : Int;
+
+	public var settings = new Settings();
 
 	private var fighterSet : HashSet<Fighter>;
 	private var fighterMap : Array2<Fighter>;
 
 	private var walls : Array2<Bool>;
+	private var wallBitmap : BitmapData;
 
-	public var maxFighterHealth : Int = 16384;
-
+	// This is mostly a placeholder
 	public function new(bmp : BitmapData) {
-		// This is mostly a placeholder
 		width = bmp.width;
 		height = bmp.height;
 		time = 0;
+
 		fighterSet = new HashSet<Fighter>(1024);
 		fighterMap = new Array2<Fighter>(width, height);
-		walls = new Array2<Bool>(width, height);
 
-		teams.push(new Team(new GradientPathfinder(width, height), "Green", 0xFF00FF00));
-		teams.push(new Team(new GradientPathfinder(width, height), "Blue", 0xFF0000FF));
+		walls = new Array2<Bool>(width, height);
+		wallBitmap = new BitmapData(width, height);
+
+		addTeam(new GradientPathfinder(width, height), "Green", 0xFF00FF00);
+		addTeam(new GradientPathfinder(width, height), "Blue", 0xFF0000FF);
+		teams[0].advantage = 1024;
 
 		updateWallsFromBitmap(0, 0, bmp);
 
-		addRandomFighters(teams[0], maxFighterHealth - 1, 300);
-		addRandomFighters(teams[1], maxFighterHealth - 1, 300);
+		addRandomFighters(teams[0], 500);
+		addRandomFighters(teams[1], 500);
+	}
+
+	public function addTeam(pathfinder : Pathfinder, name : String, color : Int) {
+		teams.push(new Team(this, pathfinder, name, color));
 	}
 
 	public function tick() {
@@ -88,23 +96,45 @@ class World {
 		return fighterSet.remove(f);
 	}
 
-	private function addRandomFighters(team : Team, hp : Int, count : Int = 1) {
-		for (i in 0...count) {
+	public inline function fighterCount() : Int {
+		return fighterSet.size();
+	}
+
+	public inline function averageArmySize() : Float {
+		return fighterSet.size() / teams.length;
+	}
+
+	public inline function armySize(t : Team) : Float {
+		var res = 0;
+		for (f in fighterSet)
+			if (f.team == t)
+				res++;
+		return res;
+	}
+
+	private function addRandomFighters(team : Team, count : Int = 1) {
+		while (count > 0) {
 			var x = Std.random(width);
 			var y = Std.random(height);
-			var f = new Fighter(x, y, team, hp);
-			addFighter(f);
+			if (!isWall(x, y)) {
+				var f = new Fighter(x, y, team, Fighter.MAX_HEALTH - 1);
+				addFighter(f);
+				count--;
+			}
 		}
 	}
 
 	public function isWall(x : Int, y : Int) : Bool {
+		if (x < 0 || x >= width || y < 0 || y >= height) return true;
 		return walls.get(x, y);
 	}
 
 	public function updateWalls(x : Int, y : Int, w : Int, h : Int, pred : Int -> Int -> Bool -> Bool) {
 		for (i in x...x + w) {
 			for (j in y...y + h) {
-				walls.set(i, j, pred(i, j, walls.get(i, j)));
+				var value = pred(i, j, walls.get(i, j));
+				walls.set(i, j, value);
+				if (value) wallBitmap.setPixel(i, j, 0xFF000000);
 			}
 		}
 		for (t in teams) {
@@ -121,6 +151,7 @@ class World {
 				var b = color & 0xFF;
 				var value = 6 * r + 3 * g + b < 315;
 				walls.set(x + i, y + j, value);
+				if (value) wallBitmap.setPixel(i, j, 0xFF000000);
 			}
 		}
 		for (t in teams) {
@@ -129,10 +160,11 @@ class World {
 	}
 
 	public function getBitmap(debugTeam : Int = -1, ?extra : Dynamic) : BitmapData {
-		var res = if (debugTeam == -1)
-			new BitmapData(width, height, true /*transparent*/)
+		var res = new BitmapData(width, height);
+		if (debugTeam == -1)
+			res.draw(wallBitmap);
 		else
-			teams[debugTeam].pathfinder.getDebugBitmap(extra);
+			res.draw(teams[debugTeam].pathfinder.getDebugBitmap(extra));
 
 		for (t in teams) {
 			var pf = t.pathfinder;
@@ -141,11 +173,19 @@ class World {
 		}
 
 		for (f in fighterSet) {
+			var k = f.health / Fighter.MAX_HEALTH;
 			var color = f.team.color;
-			var r = Std.int(((color && 0xFF0000) >> 16) * f.health / maxFighterHealth);
-			var g = Std.int(((color && 0x00FF00) >> 8) * f.health / maxFighterHealth);
-			var b = Std.int((color && 0x0000FF) * f.health / maxFighterHealth);
-			res.setPixel(f.x, f.y, r * 0x010000 + g * 0x000100 + b);
+
+			var r = (color >> 16) & 0xFF;
+			var g = (color >> 8) & 0xFF;
+			var b = color & 0xFF;
+
+			r = Std.int(r * k);
+			g = Std.int(g * k);
+			b = Std.int(b * k);
+
+			color = 0xFF000000 | (r << 16) | (g << 8) | b;
+			res.setPixel(f.x, f.y, color);
 		}
 
 		return res;
