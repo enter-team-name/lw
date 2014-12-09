@@ -91,7 +91,7 @@ class GradientPathfinder implements Pathfinder {
 				case [ 0,  1]: s ? Dir.DIR_ENE : Dir.DIR_ESE;
 				case [ 1, -1]: Dir.DIR_NE;
 				case [ 1,  0]: s ? Dir.DIR_SSW : Dir.DIR_SSE;
-				case [ 1,  1]: Dir.DIR_NW;
+				case [ 1,  1]: Dir.DIR_SE;
 				case [ _,  _]: Std.int(time / 6) % 12;
 			}
 		}
