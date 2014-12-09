@@ -2,6 +2,7 @@
 package com.teamname.lw;
 
 import com.teamname.lw.pathfinder.*;
+import com.teamname.lw.input.*;
 
 import de.polygonal.ds.Array2;
 import de.polygonal.ds.HashSet;
@@ -36,30 +37,32 @@ class World {
 		walls = new Array2<Bool>(width, height);
 		wallBitmap = new BitmapData(width, height);
 
-		addTeam(new GradientPathfinder(width, height), "Green", 0xFF00FF00);
-		addTeam(new GradientPathfinder(width, height), "Blue", 0xFF0000FF);
-		teams[0].advantage = 1024;
+		addTeam(new GradientPathfinder(width, height), KeyboardInput.createWASD(), "Green", 0xFF00FF00);
+		addTeam(new GradientPathfinder(width, height), KeyboardInput.createArrows(), "Blue", 0xFF0000FF);
+		//teams[0].advantage = 1024;
 
 		updateWallsFromBitmap(0, 0, bmp);
 
-		addRandomFighters(teams[0], 500);
-		addRandomFighters(teams[1], 500);
+		for (t in teams) {
+			t.pathfinder.setTarget(width >> 1, height >> 1, 0);
+			addRandomFighters(t, 1500);
+		}
 	}
 
-	public function addTeam(pathfinder : Pathfinder, name : String, color : Int) {
-		teams.push(new Team(this, pathfinder, name, color));
+	public inline function addTeam(pathfinder : Pathfinder, input : InputMethod, name : String, color : Int) {
+		teams.push(new Team(this, pathfinder, input, name, color));
 	}
 
 	public function tick() {
 		// Also a placeholder
-		if (time % 2 == 0) {
+		/*if (time % 2 == 0) {
 			var angle = Math.PI * time / 500;
 			var x = Std.int(width / 2 - 75 * Math.sin(angle));
 			var y1 = Std.int(height / 2 + 75 * Math.cos(angle));
 			var y2 = Std.int(height / 2 - 75 * Math.cos(angle));
 			teams[0].pathfinder.setTarget(x, y1, 2);
 			teams[1].pathfinder.setTarget(x, y2, 2);
-		}
+		}*/
 
 		for (t in teams)
 			t.tick(time);

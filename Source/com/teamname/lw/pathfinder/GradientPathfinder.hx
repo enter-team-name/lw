@@ -32,6 +32,7 @@ class GradientPathfinder implements Pathfinder {
 	}
 
 	public function setTarget(x : Int, y : Int, dist : Int) : Void {
+		//trace('setTarget($x, $y, $dist)');
 		targetX = x;
 		targetY = y;
 		targetZone = mesh.getZone(x, y);
@@ -46,7 +47,7 @@ class GradientPathfinder implements Pathfinder {
 		}
 
 		var dir = (time * 7) % 12;
-		trace(dir);
+		//trace(dir);
 		for (z in mesh.directionalIterator(dir)) {
 			var next = z.links[dir];
 			if (next != null) next.value = M.max(next.value, z.value - z.size);

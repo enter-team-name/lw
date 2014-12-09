@@ -1,10 +1,13 @@
 package com.teamname.lw;
 
-import com.teamname.lw.pathfinder.*;
+import com.teamname.lw.input.InputMethod;
+import com.teamname.lw.pathfinder.Pathfinder;
 
 class Team {
 	public var world(default, null) : World;
 	public var pathfinder(default, null) : Pathfinder;
+	public var input(default, null) : InputMethod;
+
 	public var name(default, null) : String;
 	public var color(default, null) : Int;
 
@@ -16,9 +19,11 @@ class Team {
 	public var defense(default, null) : Int;
 	public var newHealth(default, null) : Int;
 
-	public function new(world, pathfinder, name, color) {
+	public function new(world, pathfinder, input, name, color) {
 		this.world = world;
 		this.pathfinder = pathfinder;
+		this.input = input;
+
 		this.name = name;
 		this.color = color;
 		this.advantage = 1;
@@ -26,6 +31,14 @@ class Team {
 
 	public function tick(time : Int) {
 		pathfinder.tick(time);
+		input.tick();
+
+		var dist = Std.int(Math.max(Math.abs(input.dx), Math.abs(input.dy)));
+		if (time % 13 == 0)
+			dist++;
+		if (dist != 0)
+			pathfinder.setTarget(pathfinder.targetX + input.dx, pathfinder.targetY + input.dy, dist);
+
 
 		var coef = world.armySize(this) / world.averageArmySize() - 1;
 		coef = Math.min(coef, 1);
@@ -53,6 +66,6 @@ class Team {
 		if (newHealth < 1)
 			newHealth = 1;
 
-		trace('$name: coef=$coef, atk=$attack, def=$defense, hp=$newHealth');
+		//trace('$name: coef=$coef, atk=$attack, def=$defense, hp=$newHealth');
 	}
 }
