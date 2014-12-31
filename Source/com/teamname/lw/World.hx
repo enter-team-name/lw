@@ -1,6 +1,7 @@
 
 package com.teamname.lw;
 
+import com.teamname.lw.Main;
 import com.teamname.lw.pathfinder.*;
 import com.teamname.lw.input.*;
 
@@ -37,6 +38,8 @@ class World {
 		walls = new Array2<Bool>(width, height);
 		wallBitmap = new BitmapData(width, height);
 
+		// That's not gonna work
+		// addTeam(new GradientPathfinder(width, height), TouchInput.create(Math.min(500 / bmp.height, 800 / bmp.width)), "Green", 0xFF00FF00);
 		addTeam(new GradientPathfinder(width, height), KeyboardInput.createWASD(), "Green", 0xFF00FF00);
 		addTeam(new GradientPathfinder(width, height), KeyboardInput.createArrows(), "Blue", 0xFF0000FF);
 		//teams[0].advantage = 1024;

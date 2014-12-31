@@ -63,7 +63,6 @@ class Main extends Sprite {
 		addChild(bitmap);
 
 		addEventListener(Event.ENTER_FRAME, tick);
-		//addEventListener(MouseEvent.MOUSE_MOVE, mouseMove);
 
 		var stopButton = UIBuilder.create(Button, {
 			id : 'stopButton',
@@ -88,7 +87,6 @@ class Main extends Sprite {
 		removeChild(UIBuilder.getAs('fpsCounter', Text));
 
 		removeEventListener(Event.ENTER_FRAME, tick);
-		//removeEventListener(MouseEvent.MOUSE_MOVE, mouseMove);
 		
 		removeChild(bitmap);
 
