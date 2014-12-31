@@ -1,3 +1,4 @@
 Export/**
+lwmapgen/Export/**
 *.sublime-workspace
 *.sublime-project

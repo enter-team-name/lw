@@ -1,0 +1,21 @@
+Tasks:
+ ✔ Make core @mostly_done, will impove by need (30-12-14 13:30)
+ ✔ Port generating algorithms: @done (31-12-14 16:46)
+   ✔ big_quad @done (30-12-14 13:35)
+   ✔ boxes @done (30-12-14 13:40)
+   ✔ bubbles @done (30-12-14 14:17)
+   ✔ circles @done (30-12-14 14:57)
+   ✔ circuit @done (31-12-14 16:46)
+   ✔ hole @done (30-12-14 17:00)
+   ✔ lines @done (30-12-14 16:32) (by modulo cut)
+   ✔ rand_box @done (30-12-14 15:16)
+   ✔ rand_poly @done (30-12-14 16:19)
+   ✔ rand_poly_cut @done (30-12-14 16:32) (by modulo cut)
+   ✔ street @done (30-12-14 23:36)
+   ✔ worms @done (30-12-14 17:43)
+     
+   ✔ cut @done (30-12-14 16:47)
+ ✔ Reorganize generators as separate classes @done (31-12-14 14:04)
+ ✔ Simple GUI @done (31-12-14 17:21)
+ ☐ Integrate this to LW
+ ☐ Find and fix bugs

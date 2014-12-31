@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project>
+	
+	<meta title="lwmapgen" package="com.teamname.lwmapgen" version="0.0.1" company="Team Name" />
+	<app main="com.teamname.lwmapgen.Main" path="Export" file="lwmapgen" />
+	
+	<source path="Source" />
+	
+	<haxelib name="openfl" />
+	<haxelib name="polygonal-ds" />
+	<haxelib name="stablexui" />
+	<haxelib name="actuate" />
+
+	<assets path="Assets" rename="assets" exclude="LW.png" />
+	<icon path="Assets/LW.png" />
+	
+</project>
