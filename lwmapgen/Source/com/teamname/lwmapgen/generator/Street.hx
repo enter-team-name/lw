@@ -40,9 +40,9 @@ class Street {
 		*/
 
 		/* pick the main rows/cols to branch from */
-		for(i in 0...MAX_MAIN_ROW)
+		for (i in 0...MAX_MAIN_ROW)
 			main_row[i] = Std.random(map.num_row);
-		for(i in 0...MAX_MAIN_COL)
+		for (i in 0...MAX_MAIN_COL)
 			main_col[i] = Std.random(map.num_col);
 
 
@@ -51,7 +51,7 @@ class Street {
 
 
 		/* branch off rows */
-		for(i in 0...MAX_MAIN_ROW) {
+		for (i in 0...MAX_MAIN_ROW) {
 			r = main_row[i];
 
 			/* draw main row */
@@ -62,20 +62,20 @@ class Street {
 
 			/* do the branches */
 			from = Std.random(2);
-			for(c in range(from, map.num_col, 2)) {
+			for (c in range(from, map.num_col, 2)) {
 				var start = map.SectionCenter(r, c);
 
 				way = Std.random(3);
 
 				/* draw up */
-				if( r != 0 && (way == 0 || way == 2) ) {
+				if ( r != 0 && (way == 0 || way == 2) ) {
 					tor = Std.random(r);
 					var end = map.SectionCenter(tor, c);
 					rectfill(bmp, start.x-size, start.y, end.x+size, end.y, 0xFFFFFFFF);
 				}
 
 				/* draw down */
-				if( r != map.num_row-1 && (way == 1 || way == 2) ) {
+				if ( r != map.num_row-1 && (way == 1 || way == 2) ) {
 					tor = RandNum(r, map.num_row-r);
 					var end = map.SectionCenter(tor, c);
 					rectfill(bmp, start.x-size, start.y, end.x+size, end.y, 0xFFFFFFFF);
@@ -85,7 +85,7 @@ class Street {
 
 
 		/* branch off cols */
-		for(i in 0...MAX_MAIN_COL) {
+		for (i in 0...MAX_MAIN_COL) {
 			c = main_col[i];
 
 			/* draw main col */
@@ -96,20 +96,20 @@ class Street {
 
 			/* do the branches */
 			from = Std.random(2);
-			for(r in range(from, map.num_row, 2)) {
+			for (r in range(from, map.num_row, 2)) {
 				var start = map.SectionCenter(r, c);
 
 				way = Std.random(3);
 
 				/* draw left */
-				if( c != 0 && (way == 0 || way == 2) ) {
+				if ( c != 0 && (way == 0 || way == 2) ) {
 					toc = Std.random(c);
 					var end = map.SectionCenter(r, toc);
                     rectfill(bmp, start.x, start.y-size, end.x, end.y+size, 0xFFFFFFFF);
 				}
 
 				/* draw right */
-				if( c != map.num_col-1 && (way == 1 || way == 2) ) {
+				if ( c != map.num_col-1 && (way == 1 || way == 2) ) {
 					toc = RandNum(c, map.num_col-c);
 					var end = map.SectionCenter(r, toc);
                     rectfill(bmp, start.x-size, start.y-size, end.x, end.y+size, 0xFFFFFFFF);

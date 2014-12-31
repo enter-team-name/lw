@@ -53,13 +53,13 @@ class Map {
 	public function new() { }
 
 	public function generate(?size : Int = -1, ?gridSize : Int = -1, ?genMethodId : Int = -1) {
-		if(size == -1)
+		if (size == -1)
 			size = Std.random(map_size.length);
 
-		if(gridSize == -1)
+		if (gridSize == -1)
 			gridSize = Std.random(map_grid_size.length);
 
-		if(genMethodId == -1)
+		if (genMethodId == -1)
 			genMethodId = Std.random(generatorInterface.count());
 
 		this.width  = map_size[size][0];
@@ -84,18 +84,18 @@ class Map {
 	}
 
 	public function Offset(r : Int, c : Int) : Dot {
-		return new Dot( Std.int(c * this.sec_width ),
+		return new Dot(Std.int(c * this.sec_width),
 						Std.int(r * this.sec_height));
 	}
 
 	public function RandPointSection(pad : Int) : Dot {
-		return new Dot( RandNum(pad, this.sec_width - pad ),
+		return new Dot(RandNum(pad, this.sec_width - pad),
 						RandNum(pad, this.sec_height - pad));
 	}
 
 	public function RandPointSectionOffset(r : Int, c : Int, pad : Int) : Dot {
 		var offset = Offset(r, c);
-		return new Dot( RandNum(pad, this.sec_width - pad ) + offset.x,
+		return new Dot(RandNum(pad, this.sec_width - pad) + offset.x,
 						RandNum(pad, this.sec_height - pad) + offset.y);
 	}
 

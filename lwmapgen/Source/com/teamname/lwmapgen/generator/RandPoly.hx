@@ -18,7 +18,7 @@ class RandPoly {
 	public function generate() : BitmapData {
 		var map = Main.instance.map;
 		var bmp : BitmapData;
-		if(map.background == 0) // TODO: unify all functions in this
+		if (map.background == 0) // TODO: unify all functions in this
 			bmp = new BitmapData(map.width, map.height);
 		else
 			bmp = new BitmapData(map.width, map.height, false, 0x000000);
@@ -40,7 +40,7 @@ class RandPoly {
 
 		var r : Int, c : Int;
 		
-		if(map.background ==0) {
+		if (map.background ==0) {
 			g.lineStyle(0,0x000000);
 			g.beginFill(0x000000);
 		}
@@ -54,28 +54,28 @@ class RandPoly {
 
 		/* top */
 		r = 0;
-		for(c in 1...map.num_col) {
+		for (c in 1...map.num_col) {
 			var vert = map.RandPointSectionOffset(r, c, PAD);
 			g.lineTo(vert.x, vert.y);
 		}
 
 		/* right side */
 		c = map.num_col-1;
-		for(r in 1...map.num_row) {
+		for (r in 1...map.num_row) {
 			var vert = map.RandPointSectionOffset(r, c, PAD);
 			g.lineTo(vert.x, vert.y);
 		}
 
 		/* bottom */
 		r = map.num_row-1;
-		for(c in range(map.num_col-2, -1, -1)) {
+		for (c in range(map.num_col-2, -1, -1)) {
 			var vert = map.RandPointSectionOffset(r, c, PAD);
 			g.lineTo(vert.x, vert.y);
 		}
 
 		/* left side */
 		c = 0;
-		for(r in range(map.num_row-2, 0, -1)) {
+		for (r in range(map.num_row-2, 0, -1)) {
 			var vert = map.RandPointSectionOffset(r, c, PAD);
 			g.lineTo(vert.x, vert.y);
 		}

@@ -48,9 +48,9 @@ class Bubbles {
 		numbubbles = (bubblesx * bubblesy);
 		numbubbles = (numbubbles == 0 ? 1 : numbubbles);
 
-		for(r in 0...map.num_row) {
-			for(c in 0...map.num_col) {
-				for(b in 0...numbubbles) {
+		for (r in 0...map.num_row) {
+			for (c in 0...map.num_col) {
+				for (b in 0...numbubbles) {
 					var center = map.RandPointSectionOffset(r, c, 0);
 
 					/*

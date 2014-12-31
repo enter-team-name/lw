@@ -28,7 +28,7 @@ class Cut {
 		/* vertical */
 		fromr = 0;
 		tor = map.num_row-1;
-		for(i in range(0, map.num_col, 2)) {
+		for (i in range(0, map.num_col, 2)) {
 			fromc = Std.random(map.num_col);
 			toc = Std.random(map.num_col);
 
@@ -58,7 +58,7 @@ class Cut {
 		/* horizontial */
 		fromc = 0;
 		toc = map.num_col-1;
-		for(i in range(0, map.num_row, 2)) {
+		for (i in range(0, map.num_row, 2)) {
 			fromr = Std.random(map.num_row);
 			tor = Std.random(map.num_row);
 

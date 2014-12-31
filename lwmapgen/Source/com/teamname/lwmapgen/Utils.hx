@@ -7,7 +7,7 @@ class Range {
 	var step:Int;
 
 	public function new(from : Int, ?to : Int, ?step : Int) {
-		if(step == 0)
+		if (step == 0)
 			throw "Range step must not be zero";
 
 		if (to == null) {

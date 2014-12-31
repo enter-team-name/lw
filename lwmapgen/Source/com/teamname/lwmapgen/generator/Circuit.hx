@@ -40,9 +40,9 @@ class Circuit {
 	*/
 
 	private function draw_pipe(fromr : Int, fromc : Int, tor : Int, toc : Int, flip : Int) {
-		if( fromc < toc ) {
+		if (fromc < toc) {
 			/* up/down then across */
-			if( flip == 0 ) {
+			if (flip == 0) {
 				/* go up/down to reach target */
 				var from = map.SectionCenter(fromr, fromc);
 				var to   = map.SectionCenter(tor, fromc);
@@ -66,9 +66,9 @@ class Circuit {
 				rectfill(bmp, from.x-size, from.y, to.x+size, to.y, 0xFFFFFF);
 			}
 		}
-		else if( fromc > toc ) {
+		else if (fromc > toc) {
 			/* across then up/down */
-			if( flip == 0 ) {
+			if (flip == 0) {
 				/* across some num of sections */
 				var from = map.SectionCenter(fromr, fromc);
 				var to   = map.SectionCenter(fromr, toc);
@@ -104,15 +104,15 @@ class Circuit {
 	private function connect_rows() {
 		var fromc : Int = -1, toc : Int = -1;
 
-		for(r in 0...map.num_row) {
+		for (r in 0...map.num_row) {
 			/* can't connect if there's not 2 or more... */
-			if( count[r] < 2 )
+			if (count[r] < 2)
 				continue;
 
 			/* find first c... */
 			var c = 0;
-			while(c < map.num_col) {
-				if( grid[r][c] == 1 ) {
+			while (c < map.num_col) {
+				if (grid[r][c] == 1) {
 					fromc = c;
 					break;
 				}
@@ -121,8 +121,8 @@ class Circuit {
 
 			/* find last c... */
 			c++;
-			while(c < map.num_col) {
-				if( grid[r][c] == 1 )
+			while (c < map.num_col) {
+				if (grid[r][c] == 1)
 					toc = c;
 				c++;
 			}
@@ -138,14 +138,14 @@ class Circuit {
 		var fromr : Int = -1, fromc : Int = -1, tor : Int = -1, toc : Int = -1;
 
 		var r = 0;
-		while(r < map.num_row) {
-			if( count[r] == 0 )
+		while (r < map.num_row) {
+			if (count[r] == 0)
 				continue;
 
 			fromr = r;
 			/* find first well */
-			for(c in 0...map.num_col) {
-				if( grid[fromr][c] == 1 ) {
+			for (c in 0...map.num_col) {
+				if (grid[fromr][c] == 1) {
 					fromc = c;
 					break;
 				}
@@ -154,20 +154,20 @@ class Circuit {
 			/* tor = -1; */
 			/* find next row with a well */
 			r++;
-			while(r < map.num_row) {
-				if( count[r] > 0 ) {
+			while (r < map.num_row) {
+				if (count[r] > 0) {
 					tor = r;
 					break;
 				}
 				r++;
 			}
 			/* there might be no other wells after from row */
-			if( r == map.num_row )
+			if (r == map.num_row)
 				break;
 
 			/* find first well on to row */
-			for(c in 0...map.num_col) {
-				if( grid[tor][c] == 1 ) {
+			for (c in 0...map.num_col) {
+				if (grid[tor][c] == 1) {
 					toc = c;
 					break;
 				}
@@ -185,14 +185,14 @@ class Circuit {
 		var fromr : Int = -1, fromc : Int = -1, tor : Int = -1, toc : Int = -1;
 
 		var r = 0;
-		while(r < map.num_row) {
-			if( count[r] == 0 )
+		while (r < map.num_row) {
+			if (count[r] == 0)
 				continue;
 
 			fromr = r;
 			/* find last well */ 
-			for(c in range(map.num_col-1,-1,-1)) {
-				if( grid[fromr][c] == 1 ) {
+			for (c in range(map.num_col-1,-1,-1)) {
+				if (grid[fromr][c] == 1) {
 					fromc = c;
 					break;
 				}
@@ -201,20 +201,20 @@ class Circuit {
 			/* tor = -1; */
 			/* find next row with well */
 			r++;
-			while(r < map.num_row) {
-				if( count[r] > 0 ) {
+			while (r < map.num_row) {
+				if (count[r] > 0) {
 					tor = r;
 					break;
 				}
 				r++;
 			}
 			/* there might not be another row after from row */
-			if( r == map.num_row )
+			if (r == map.num_row)
 				break;
 
 			/* find last well */ 
-			for(c in range(map.num_col-1,-1,-1)) {
-				if( grid[tor][c] == 1 ) {
+			for (c in range(map.num_col-1,-1,-1)) {
+				if (grid[tor][c] == 1) {
 					toc = c;
 					break;
 				}
@@ -231,8 +231,8 @@ class Circuit {
 			mid : Int, i : Int;
 
 		var r = 0;
-		while(r < map.num_row) {
-			if( count[r] == 0 )
+		while (r < map.num_row) {
+			if (count[r] == 0)
 				continue;
 
 			fromr = r;
@@ -240,10 +240,10 @@ class Circuit {
 			/* find first middle well */
 			mid = Std.int(count[fromr]/2);
 			i = 0;
-			for(c in 0...map.num_col) {
-				if( grid[fromr][c] == 1 ) {
+			for (c in 0...map.num_col) {
+				if (grid[fromr][c] == 1) {
 					fromc = c;
-					if( i == mid )
+					if (i == mid)
 						break;
 					i++;
 				}
@@ -253,24 +253,24 @@ class Circuit {
 			/* tor = -1; */
 			/* find to row */
 			r++;
-			while(r < map.num_row) {
-				if( count[r] > 0 ) {
+			while (r < map.num_row) {
+				if (count[r] > 0) {
 					tor = r;
 					break;
 				}
 				r++;
 			}
 			/* there might not be another row after from row */
-			if( r == map.num_row )
+			if (r == map.num_row)
 				break;
 
 			/* find first middle well */
 			mid = Std.int(count[tor]/2);
 			i = 0;
-			for(c in 0...map.num_col) {
-				if( grid[tor][c] == 1 ) {
+			for (c in 0...map.num_col) {
+				if (grid[tor][c] == 1) {
 					toc = c;
-					if( i == mid )
+					if (i == mid)
 						break;
 					i++;
 				}
@@ -288,7 +288,7 @@ class Circuit {
 		var g = sprite.graphics;
 
 		grid  = new Vector<Vector<Int>>(map.num_row);
-		for(i in 0...map.num_row)
+		for (i in 0...map.num_row)
 			grid[i] = new Vector<Int>(map.num_col);
 
 		count = new Vector<Int>(map.num_row);
@@ -300,16 +300,16 @@ class Circuit {
 		size = Std.int((map.sec_width > map.sec_height ? map.sec_width : map.sec_height)/12.0);
 		size = (size == 0 ? 1 : size);
 
-		for(r in 0...map.num_row) {
+		for (r in 0...map.num_row) {
 			count[r] = 0;
-			for(c in 0...map.num_col) {
-				if( (r == 0 || r == map.num_row-1)
+			for (c in 0...map.num_col) {
+				if ( (r == 0 || r == map.num_row-1)
 						&& (c == 0 || c == map.num_col/2 || c == map.num_col-1) )
 					do_cut = 1;
 				else
 					do_cut = Std.random(4);
 
-				if( do_cut != 1 ) {
+				if (do_cut != 1) {
 					grid[r][c] = 0;
 					continue;
 				}
